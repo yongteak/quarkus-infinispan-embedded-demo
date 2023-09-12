@@ -1,9 +1,22 @@
 <infinispan>
     <cache-container default-cache="myDefaultCache">
         <!-- Uses "aes-encrypted-tcp-stack" for cluster transport. -->
-        <transport cluster="${infinispan.cluster.name:}"
+        <transport cluster="${infinispan.cluster.name:local}"
                    stack="tcp"
-                   node-name="${infinispan.node.name:}"/>
-        <replicated-cache name="myDefaultCache" />
+                   node-name="${infinispan.node.name:local-node}" />
+
+        <distributed-cache-configuration name="myDistributedCacheTemplate"
+                                         mode="SYNC"
+                                         owners="2"
+                                         statistics="true">
+            <encoding>
+                <key media-type="text/plain"/>
+                <value media-type="application/x-protostream"/>
+            </encoding>
+            <memory max-count="1000000"
+                    when-full="REMOVE"/>
+        </distributed-cache-configuration>
+
+        <distributed-cache name="myDefaultCache" configuration="myDistributedCacheTemplate" />
     </cache-container>
 </infinispan>
