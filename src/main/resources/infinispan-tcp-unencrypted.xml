@@ -1,0 +1,9 @@
+<infinispan>
+    <cache-container default-cache="myDefaultCache">
+        <!-- Uses "aes-encrypted-tcp-stack" for cluster transport. -->
+        <transport cluster="${infinispan.cluster.name:}"
+                   stack="tcp"
+                   node-name="${infinispan.node.name:}"/>
+        <replicated-cache name="myDefaultCache" />
+    </cache-container>
+</infinispan>
