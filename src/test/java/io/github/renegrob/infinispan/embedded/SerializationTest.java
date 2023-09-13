@@ -1,5 +1,6 @@
 package io.github.renegrob.infinispan.embedded;
 
+import io.github.renegrob.infinispan.embedded.util.HexDump;
 import io.quarkus.test.junit.QuarkusTest;
 import jakarta.inject.Inject;
 import org.infinispan.commons.marshall.WrappedByteArray;
@@ -33,6 +34,7 @@ public class SerializationTest {
         String value = "abc";
 
         byte[] bytes = serialize(new MyCacheEntry(instant, value));
+        System.out.println(new HexDump().toHexDump(bytes));
         Object result = deserialize(MyCacheEntry.class, bytes);
         assertThat(result).isInstanceOfSatisfying(MyCacheEntry.class, entry -> {
             assertThat(entry.getCreatedAt()).isEqualTo(instant);
@@ -43,6 +45,7 @@ public class SerializationTest {
     @Test
     void serializeMyCacheEntryProducer() {
         byte[] bytes = serialize(MyCacheEntryProducer.INSTANCE);
+        System.out.println(new HexDump().toHexDump(bytes));
         Object result = deserialize(MyCacheEntryProducer.class, bytes);
         assertThat(result).isInstanceOfSatisfying(MyCacheEntryProducer.class, entry -> {
             assertThat(entry).isSameAs(MyCacheEntryProducer.INSTANCE);
