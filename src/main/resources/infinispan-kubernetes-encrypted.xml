@@ -1,0 +1,27 @@
+<infinispan>
+    <jgroups>
+        <!-- Creates a custom JGroups stack named "aes-encrypted-dns-ping-stack". -->
+        <!-- Inherits properties from the default Kubernetes stack. -->
+        <stack name="aes-encrypted-dns-ping-stack" extends="kubernetes">
+            <dns.DNS_PING dns_query=">${env.INFINISPAN_HEADLESS_SERVICE_NAME}"
+                          num_discovery_runs="3"
+            />
+
+            <!-- Adds SYM_ENCRYPT to the stack after VERIFY_SUSPECT2. -->
+            <SYM_ENCRYPT sym_algorithm="AES"
+                         keystore_name="${env.INFINISPAN_KEYSTORE_NAME}"
+                         keystore_type="PKCS12"
+                         store_password="${env.INFINISPAN_KEYSTORE_PASSWORD}"
+                         key_password="${env.INFINISPAN_KEYSTORE_PASSWORD}"
+                         alias="${env.INFINISPAN_KEYSTORE_ALIAS}"
+                         stack.combine="INSERT_AFTER"
+                         stack.position="VERIFY_SUSPECT2"/>
+        </stack>
+    </jgroups>
+    <cache-container name="default" statistics="true">
+        <!-- Uses "aes-encrypted-dns-ping-stack" for cluster transport. -->
+        <transport cluster="${env.INFINISPAN_CLUSTER_NAME}"
+                   stack="aes-encrypted-dns-ping-stack"
+                   node-name="${env.INFINISPAN_POD_NAME}"/>
+    </cache-container>
+</infinispan>

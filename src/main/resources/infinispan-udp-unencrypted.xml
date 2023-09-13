@@ -2,7 +2,7 @@
     <cache-container default-cache="myDefaultCache">
         <!-- Uses "aes-encrypted-tcp-stack" for cluster transport. -->
         <transport cluster="${infinispan.cluster.name:local}"
-                   stack="tcp"
+                   stack="udp"
                    node-name="${infinispan.node.name:}" />
 
         <distributed-cache-configuration name="myDistributedCacheTemplate"

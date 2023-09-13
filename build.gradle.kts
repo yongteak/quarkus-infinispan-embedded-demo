@@ -1,3 +1,5 @@
+import io.quarkus.gradle.tasks.QuarkusBuild
+
 plugins {
     java
     id("io.quarkus")
@@ -12,6 +14,7 @@ val quarkusPlatformGroupId: String by project
 val quarkusPlatformArtifactId: String by project
 val quarkusPlatformVersion: String by project
 val infinispanVersion: String by project
+val protostreamVersion: String by project;
 
 dependencies {
     implementation(enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}"))
@@ -22,8 +25,9 @@ dependencies {
     implementation("io.quarkus:quarkus-resteasy-reactive")
 
     implementation("org.infinispan:infinispan-quarkus-embedded:${infinispanVersion}")
-    annotationProcessor("org.infinispan.protostream:protostream-processor:4.6.5.Final")
-    implementation("org.infinispan.protostream:protostream-processor:4.6.5.Final")
+    annotationProcessor("org.infinispan.protostream:protostream-processor:${protostreamVersion}")
+    // for the compile time dependency on org.infinispan.protostream.annotations.impl.processor.OriginatingClasses
+    compileOnly("org.infinispan.protostream:protostream-processor:${protostreamVersion}")
     //implementation("org.infinispan:infinispan-cdi-embedded:${infinispanVersion}")
     implementation("org.jboss.slf4j:slf4j-jboss-logmanager")
 

@@ -1,0 +1,17 @@
+<infinispan>
+    <jgroups>
+        <!-- Creates a custom JGroups stack named "dns-ping-stack". -->
+        <!-- Inherits properties from the default Kubernetes stack. -->
+        <stack name="dns-ping-stack" extends="kubernetes">
+            <dns.DNS_PING dns_query=">${env.INFINISPAN_HEADLESS_SERVICE_NAME}"
+                          num_discovery_runs="3"
+            />
+        </stack>
+    </jgroups>
+    <cache-container name="default" statistics="true">
+        <!-- Uses "aes-encrypted-dns-ping-stack" for cluster transport. -->
+        <transport cluster="${env.INFINISPAN_CLUSTER_NAME}"
+                   stack="dns-ping-stack"
+                   node-name="${env.INFINISPAN_POD_NAME}"/>
+    </cache-container>
+</infinispan>

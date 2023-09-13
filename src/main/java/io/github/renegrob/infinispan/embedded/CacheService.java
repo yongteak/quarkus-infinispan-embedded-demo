@@ -1,16 +1,18 @@
 package io.github.renegrob.infinispan.embedded;
 
+import io.quarkus.runtime.Startup;
 import jakarta.inject.Inject;
-import jakarta.ws.rs.GET;
-import jakarta.ws.rs.Path;
+import jakarta.inject.Singleton;
 import org.infinispan.Cache;
+import org.infinispan.manager.CacheManagerInfo;
 import org.infinispan.manager.EmbeddedCacheManager;
-import org.jboss.resteasy.reactive.RestPath;
 
-import java.util.concurrent.TimeUnit;
-
-@Path("/cache")
-public class CacheResource {
+/**
+ * This startup bean starts the cache service
+ */
+@Startup
+@Singleton
+public class CacheService {
 
     /**
      *  {@link org.infinispan.quarkus.embedded.runtime.InfinispanEmbeddedProducer produced by InfinispanEmbeddedProducer}
@@ -19,15 +21,13 @@ public class CacheResource {
     private final Cache<String, MyCacheEntry> cache;
 
     @Inject
-    CacheResource(EmbeddedCacheManager emc) {
+    CacheService(EmbeddedCacheManager emc) {
         this.emc = emc;
+        System.setProperty("io.github.renegrob.infinispan.node", emc.getCacheManagerInfo().getNodeName());
         this.cache = emc.getCache();
     }
 
-    @GET
-    @Path("{key}")
-    public MyCacheEntry cache(@RestPath String key) {
-        MyCacheEntry result = cache.computeIfAbsent(key, MyCacheEntryProducer.INSTANCE, 10, TimeUnit.SECONDS);
-        return result;
+    public CacheManagerInfo getCacheManagerInfo() {
+        return emc.getCacheManagerInfo();
     }
 }
