@@ -28,7 +28,7 @@ dependencies {
     annotationProcessor("org.infinispan.protostream:protostream-processor:${protostreamVersion}")
     // for the compile time dependency on org.infinispan.protostream.annotations.impl.processor.OriginatingClasses
     compileOnly("org.infinispan.protostream:protostream-processor:${protostreamVersion}")
-    //implementation("org.infinispan:infinispan-cdi-embedded:${infinispanVersion}")
+    // incompatible: implementation("org.infinispan:infinispan-cdi-embedded:${infinispanVersion}")
     implementation("org.jboss.slf4j:slf4j-jboss-logmanager")
 
     testImplementation("io.quarkus:quarkus-junit5")
@@ -39,6 +39,18 @@ dependencies {
 
 group = "io.github.renegrob"
 version = "1.0.0-SNAPSHOT"
+
+//project.configurations.getByName(JavaPlugin.ANNOTATION_PROCESSOR_CONFIGURATION_NAME)
+//        .withDependencies {
+//            val resolvedArtifacts = project.configurations.getByName(JavaPlugin.IMPLEMENTATION_CONFIGURATION_NAME).copy().resolvedConfiguration.resolvedArtifacts;
+//
+//            for (artifact in resolvedArtifacts) {
+//                val id = artifact.moduleVersion.id;
+//                if ("org.infinispan.protostream".equals(id.getGroup()) && "protostream".equals(id.getName()) && !id.getVersion().isEmpty()) {
+//                    add(project.dependencies.create("org.infinispan.protostream:protostream-processor" + ':' + id.getVersion()));
+//                }
+//            }
+//        }
 
 java {
     sourceCompatibility = JavaVersion.VERSION_17

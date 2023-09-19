@@ -18,4 +18,24 @@ curl -s http://localhost:8080/cache/test2 | jq
 curl -s http://localhost:8080/cache/test3 | jq
 curl -s http://localhost:8080/cache/test4 | jq
 
+echo ---
+
+curl -s http://localhost:8080/cache/testA | jq &
+curl -s http://localhost:8081/cache/testA | jq &
+curl -s http://localhost:8082/cache/testA | jq &
+
+wait
+
+echo ---
+
+echo ---
+
+curl -s http://localhost:8080/cache/TestB | jq &
+curl -s http://localhost:8081/cache/TestB | jq &
+curl -s http://localhost:8082/cache/TestB | jq &
+
+wait
+
+echo ---
+
 docker stop $(docker ps --filter=label='SHOULD_STOP=true' -q)

@@ -1,0 +1,21 @@
+version: '3'
+
+networks:
+  mynetwork:
+    driver: bridge
+
+services:
+  client-app:
+    image: renegrob/infinispan-embedded-demo:1.0.0-SNAPSHOT
+    ports:
+      - "8080:8080"
+    container_name: instance1
+    networks:
+      - mynetwork
+  client-app2:
+    image: renegrob/infinispan-embedded-demo:1.0.0-SNAPSHOT
+    ports:
+      - "8081:8080"
+    container_name: instance2
+    networks:
+      - mynetwork

@@ -1,12 +1,20 @@
 package io.github.renegrob.infinispan.embedded;
 
-import java.time.Instant;
+import io.quarkus.arc.Arc;
+import org.infinispan.manager.EmbeddedCacheManager;
 
-public class MyCacheEntryProducer implements java.util.function.Function<String, MyCacheEntry> {
+import java.time.Instant;
+import java.util.function.Function;
+
+public class MyCacheEntryProducer implements Function<String, MyCacheEntry> {
 
     public static final MyCacheEntryProducer INSTANCE = new MyCacheEntryProducer();
 
     private MyCacheEntryProducer() {
+    }
+
+    private EmbeddedCacheManager getCacheService() {
+        return Arc.container().instance(EmbeddedCacheManager.class).get();
     }
 
     @Override
@@ -18,6 +26,6 @@ public class MyCacheEntryProducer implements java.util.function.Function<String,
             Thread.currentThread().interrupt();
             throw new RuntimeException(e);
         }
-        return new MyCacheEntry(Instant.now(), String.format("%s produced on %s", key, System.getProperty("io.github.renegrob.infinispan.node")));
+        return new MyCacheEntry(Instant.now(), String.format("%s produced on %s", key, getCacheService().getCacheManagerInfo().getNodeName()));
     }
 }

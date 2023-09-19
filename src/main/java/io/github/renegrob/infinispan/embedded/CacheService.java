@@ -23,7 +23,6 @@ public class CacheService {
     @Inject
     CacheService(EmbeddedCacheManager emc) {
         this.emc = emc;
-        System.setProperty("io.github.renegrob.infinispan.node", emc.getCacheManagerInfo().getNodeName());
         this.cache = emc.getCache();
     }
 
