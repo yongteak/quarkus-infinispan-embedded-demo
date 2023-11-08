@@ -1,6 +1,10 @@
 <infinispan>
     <cache-container default-cache="myDefaultCache">
 
+<!--        <global-state>-->
+<!--            <persistent-location path="ispn/"/>-->
+<!--        </global-state>-->
+
         <transport cluster="${infinispan.cluster.name:local}"
                    stack="tcp"
                    node-name="${infinispan.node.name:}" />

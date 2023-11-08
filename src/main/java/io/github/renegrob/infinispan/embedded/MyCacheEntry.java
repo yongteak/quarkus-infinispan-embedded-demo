@@ -7,8 +7,8 @@ import java.time.Instant;
 
 public class MyCacheEntry {
 
-    private Instant createdAt;
-    private String value;
+    private final Instant createdAt;
+    private final String value;
 
     @ProtoFactory
     public MyCacheEntry(Instant createdAt, String value) {
@@ -16,13 +16,21 @@ public class MyCacheEntry {
         this.value = value;
     }
 
-    @ProtoField(number = 1)
+    @ProtoField(number = 1, required = true)
     public Instant getCreatedAt() {
         return createdAt;
     }
 
-    @ProtoField(number = 2)
+    @ProtoField(number = 2, required = true)
     public String getValue() {
         return value;
+    }
+
+    @Override
+    public String toString() {
+        return "MyCacheEntry{" +
+                "createdAt=" + createdAt +
+                ", value='" + value + '\'' +
+                '}';
     }
 }

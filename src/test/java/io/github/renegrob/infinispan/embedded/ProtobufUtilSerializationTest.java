@@ -1,31 +1,26 @@
 package io.github.renegrob.infinispan.embedded;
 
 import io.github.renegrob.infinispan.embedded.util.HexDump;
-import io.quarkus.test.junit.QuarkusTest;
-import jakarta.inject.Inject;
-import org.infinispan.commons.marshall.WrappedByteArray;
-import org.infinispan.encoding.DataConversion;
-import org.infinispan.manager.EmbeddedCacheManager;
+import org.infinispan.protostream.ProtobufUtil;
+import org.infinispan.protostream.SerializationContext;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 
+import java.io.IOException;
 import java.time.Instant;
 import java.util.Random;
 
 import static org.assertj.core.api.Assertions.assertThat;
 
-@QuarkusTest
-public class SerializationTest {
+public class ProtobufUtilSerializationTest {
 
-    private DataConversion valueDataConversion;
-
-    @Inject
-    EmbeddedCacheManager emc;
-
+    private SerializationContext ctx;
     @BeforeEach
     void init() {
-        valueDataConversion = emc.getCache().getAdvancedCache().getValueDataConversion();
-        assertThat(valueDataConversion).describedAs("valueDataConversion").isNotNull();
+        MyProtoSchemaImpl schema = new MyProtoSchemaImpl();
+        ctx = ProtobufUtil.newSerializationContext();
+        schema.registerSchema(ctx);
+        schema.registerMarshallers(ctx);
     }
 
     @Test
@@ -53,12 +48,21 @@ public class SerializationTest {
     }
 
     private <T> T deserialize(Class<T> clazz, byte[] bytes) {
-        Object o = valueDataConversion.fromStorage(new WrappedByteArray(bytes));
+        Object o;
+        try {
+            o = ProtobufUtil.fromWrappedByteArray(ctx, bytes);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
         assertThat(o).isInstanceOf(clazz);
         return clazz.cast(o);
     }
 
     private byte[] serialize(Object data) {
-        return ((WrappedByteArray) valueDataConversion.toStorage(data)).getBytes();
+        try {
+            return ProtobufUtil.toWrappedByteArray(ctx, data);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
     }
 }
