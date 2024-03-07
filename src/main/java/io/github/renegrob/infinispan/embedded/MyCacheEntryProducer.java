@@ -19,7 +19,8 @@ public class MyCacheEntryProducer implements Function<String, MyCacheEntry> {
 
     @Override
     public MyCacheEntry apply(String key) {
-        // Here you could load the entry from the database or do some expensive operation
+        // 여기에서는 데이터베이스에서 항목을 로드하거나 비용이 많이 드는 작업을 수행할 수 있습니다.
+        // [2024-03-07 10:33:22] 캐시 데이터 Put
         try {
             Thread.sleep(700);
         } catch (InterruptedException e) {

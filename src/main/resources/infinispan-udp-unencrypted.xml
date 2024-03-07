@@ -1,22 +1,38 @@
 <infinispan>
+    <!-- 인피니스팬 캐시 컨테이너 설정 시작 -->
     <cache-container default-cache="myDefaultCache">
-        <!-- Uses "aes-encrypted-tcp-stack" for cluster transport. -->
+        <!-- 클러스터 통신을 위해 "udp" 스택 사용. "aes-encrypted-tcp-stack" 주석은 오해의 소지가 있음 -->
         <transport cluster="${infinispan.cluster.name:local}"
                    stack="udp"
                    node-name="${infinispan.node.name:}" />
-
+        
+        <!-- 분산 캐시 설정 템플릿 정의 -->
+        <!--
+            SYNC (동기 모드): 이 모드에서는 캐시 업데이트(삽입, 수정, 삭제 등)가 클러스터 내의 모든 노드에 
+                동기적으로 반영됩니다. 즉, 작업이 완료되기 전에 모든 관련 노드가 업데이트를 받아야 합니다. 
+                이는 데이터 일관성을 유지하는 데 유리하지만, 네트워크 지연으로 인해 성능이 저하될 수 있습니다.
+            ASYNC (비동기 모드): 비동기 모드에서는 캐시 업데이트가 비동기적으로 수행됩니다. 
+                작업을 요청한 노드는 다른 노드들이 업데이트를 완료할 때까지 기다리지 않고 
+                즉시 다음 작업을 진행할 수 있습니다. 이는 성능을 향상시킬 수 있지만, 
+                클러스터 내의 데이터 일관성을 보장하기 어려울 수 있습니다.
+        -->
         <distributed-cache-configuration name="myDistributedCacheTemplate"
-                                         mode="SYNC"
-                                         owners="2"
-                                         statistics="true">
+                                         mode="SYNC" <!-- 동기 모드로 설정 -->
+                                         owners="2" <!-- 데이터 소유자 수를 2로 설정 -->
+                                         statistics="true"> <!-- 통계 활성화 -->
+                                        
+            <expiration lifespan="60000"/>                                    
+            <!-- 키와 값의 인코딩 설정 -->
             <encoding>
-                <key media-type="text/plain"/>
-                <value media-type="application/x-protostream"/>
+                <key media-type="text/plain"/> <!-- 키는 텍스트 형식 -->
+                <value media-type="application/x-protostream"/> <!-- 값은 프로토스트림 형식 -->
             </encoding>
-            <memory max-count="1000000"
-                    when-full="REMOVE"/>
+            <!-- 메모리 설정 -->
+            <memory max-count="1000000" <!-- 최대 항목 수를 100만으로 설정 -->
+                    when-full="REMOVE"/> <!-- 가득 차면 항목 제거 -->
         </distributed-cache-configuration>
 
+        <!-- 위에서 정의한 템플릿을 사용하여 "myDefaultCache"라는 이름의 분산 캐시 생성 -->
         <distributed-cache name="myDefaultCache" configuration="myDistributedCacheTemplate" />
     </cache-container>
 </infinispan>

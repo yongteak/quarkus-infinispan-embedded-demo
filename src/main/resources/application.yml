@@ -4,3 +4,9 @@ greeting:
 quarkus:
   infinispan-embedded:
     xml-config: infinispan-tcp-unencrypted.xml
+  datasource:
+    db-kind: sqlite
+    jdbc:
+      url: jdbc:sqlite:./mydatabase.db
+  # http:
+  #   port: 8081

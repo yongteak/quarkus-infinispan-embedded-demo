@@ -13,7 +13,7 @@ docker run -p8082:8080 --net=test -d renegrob/infinispan-embedded-demo:1.0.0-SNA
 
 sleep 10s
 
-curl -s http://localhost:8080/cache/test1 | jq
+curl -s http://localhost:8081/cache/test1 | jq
 curl -s http://localhost:8080/cache/test2 | jq
 curl -s http://localhost:8080/cache/test3 | jq
 curl -s http://localhost:8080/cache/test4 | jq

@@ -17,6 +17,19 @@ val infinispanVersion: String by project
 val protostreamVersion: String by project;
 
 dependencies {
+    implementation("io.quarkus:quarkus-resteasy")
+    implementation("org.apache.camel.quarkus:camel-quarkus-netty-http")
+    implementation("io.quarkus:quarkus-smallrye-health")
+    implementation("org.apache.camel.quarkus:camel-quarkus-microprofile-health")
+    implementation("org.apache.camel.quarkus:camel-quarkus-jackson")
+    implementation("org.apache.camel.quarkus:camel-quarkus-rest")
+    implementation("org.apache.camel.quarkus:camel-quarkus-platform-http")
+    implementation("org.apache.camel.quarkus:camel-quarkus-direct")
+    implementation("org.apache.camel.quarkus:camel-quarkus-log")
+    implementation("org.apache.camel.quarkus:camel-quarkus-sql")
+    implementation("org.apache.camel.quarkus:camel-quarkus-core")
+    implementation(enforcedPlatform("${quarkusPlatformGroupId}:quarkus-camel-bom:${quarkusPlatformVersion}"))
+    implementation("io.quarkiverse.jdbc:quarkus-jdbc-sqlite:3.0.6")
     implementation(enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}"))
     implementation("io.quarkus:quarkus-resteasy-reactive-jackson")
     implementation("io.quarkus:quarkus-config-yaml")
