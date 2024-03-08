@@ -17,6 +17,7 @@ val infinispanVersion: String by project
 val protostreamVersion: String by project;
 
 dependencies {
+    implementation("org.apache.camel.quarkus:camel-quarkus-file")
     implementation("io.quarkus:quarkus-resteasy")
     implementation("org.apache.camel.quarkus:camel-quarkus-netty-http")
     implementation("io.quarkus:quarkus-smallrye-health")

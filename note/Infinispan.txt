@@ -62,11 +62,47 @@ ${infinispan.cluster.name:local}와 ${infinispan.node.name:}와 같은 표현은
 위의 예시에서 ${infinispan.cluster.name:local}는 infinispan.cluster.name 속성을 참조하며, 이 속성이 정의되어 있지 않은 경우 기본값으로 local을 사용하라는 의미입니다. 마찬가지로, ${infinispan.node.name:}는 infinispan.node.name 속성을 참조하며, 기본값이 명시되어 있지 않기 때문에 이 속성이 정의되어 있지 않으면 빈 문자열을 사용하게 됩니다.
 이러한 방식은 설정 파일을 보다 유연하게 관리할 수 있게 해주며, 다양한 환경이나 조건에서 애플리케이션을 실행할 때 유용하게 사용될 수 있습니다.
 
+Quarkus 애플리케이션을 개발 모드(quarkus dev)로 실행할 때 환경 변수나 시스템 속성을 사용하여 설정 값을 제공할 수 있습니다. 이는 Quarkus가 제공하는 유연한 구성 시스템을 통해 가능합니다. Quarkus는 실행 시간에 환경 변수, 시스템 속성, application.properties 파일 등 다양한 소스에서 구성 값을 읽어올 수 있습니다.
+시스템 속성을 사용하는 경우
+Quarkus 애플리케이션을 실행할 때 JVM 옵션을 통해 시스템 속성을 설정할 수 있습니다. 예를 들어, infinispan.cluster.name과 infinispan.node.name 속성을 설정하려면 다음과 같이 실행합니다:
+./mvnw quarkus:dev -Dinfinispan.cluster.name=myCluster -Dinfinispan.node.name=node1
+이 명령은 Maven을 사용하는 경우의 예시이며, Gradle을 사용하는 경우에는 다음과 같이 실행할 수 있습니다:
+./gradlew quarkusDev -Dinfinispan.cluster.name=myCluster -Dinfinispan.node.name=node1
+환경 변수를 사용하는 경우
+환경 변수를 통해 이러한 속성을 설정할 수도 있습니다. 환경 변수는 운영 체제 레벨에서 설정되며, Quarkus 애플리케이션은 이러한 환경 변수를 자동으로 감지하여 해당 값으로 구성을 적용할 수 있습니다. 예를 들어, Linux나 macOS에서는 터미널을 통해 다음과 같이 설정할 수 있습니다:
+export INFINISPAN_CLUSTER_NAME=myCluster
+export INFINISPAN_NODE_NAME=node1
+./mvnw quarkus:dev
 
-export QUARKUS_HTTP_PORT=8081
+Windows에서는 다음과 같이 설정합니다:
+set INFINISPAN_CLUSTER_NAME=myCluster
+set INFINISPAN_NODE_NAME=node1
+mvnw quarkus:dev
+
+Quarkus는 환경 변수 이름에서 점(.)을 언더스코어(_)로 변환하고 대문자로 변환하는 규칙을 사용합니다. 따라서 infinispan.cluster.name은 환경 변수로 INFINISPAN_CLUSTER_NAME으로 지정됩니다.
+이러한 방법을 통해 Quarkus 애플리케이션의 개발 모드에서도 Infinispan 관련 설정을 유연하게 제공할 수 있습니다.
+
+
+export ORACLIZER_HTTP_PORT=8081
+export ORACLIZER_API_PORT=8091
 export INFINISPAN_CLUSTER_NAME=cluster1
 export INFINISPAN_NODE_NAME=node1
 quarkus dev
+
+export ORACLIZER_HTTP_PORT=8082
+export ORACLIZER_API_PORT=8092
+export INFINISPAN_CLUSTER_NAME=cluster1
+export INFINISPAN_NODE_NAME=node2
+quarkus dev
+
+
+export ORACLIZER_HTTP_PORT=8083
+export ORACLIZER_API_PORT=8093
+export INFINISPAN_CLUSTER_NAME=cluster1
+export INFINISPAN_NODE_NAME=node3
+quarkus dev
+
+
 
 
 ### 튜닝

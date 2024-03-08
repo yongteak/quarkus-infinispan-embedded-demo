@@ -1,5 +1,9 @@
 package io.route;
 
+import java.nio.file.Files;
+import java.nio.file.Paths;
+
+import org.apache.camel.Exchange;
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.model.rest.RestBindingMode;
 
@@ -17,8 +21,11 @@ public class RestConfiguration extends RouteBuilder {
 
      static final Logger LOG = LoggerFactory.getLogger(RestConfiguration.class);
 
-    @ConfigProperty(name = "quarkus.camel.rest.port", defaultValue = "8088")
-    int port;
+     @ConfigProperty(name = "ORACLIZER_HTTP_PORT", defaultValue = "8080")
+     int httpPort;
+     
+     @ConfigProperty(name = "ORACLIZER_API_PORT", defaultValue = "8090")
+     int apiPort;
 
     @Inject
     CacheService cacheService;
@@ -28,10 +35,35 @@ public class RestConfiguration extends RouteBuilder {
     public void configure() throws Exception {
         restConfiguration().component("netty-http")
             // .contextPath("/v1/sdap/service")
-            .port(port)
+            .port(apiPort)
             .bindingMode(RestBindingMode.json)
             .jsonDataFormat("json-jackson").enableCORS(true)
             .dataFormatProperty("prettyPrint", "true");
+
+        // REST 엔드포인트 정의
+        rest("/api")
+            .get("/hello").to("direct:hello");
+
+        // 정적 웹 콘텐츠를 위한 netty-http 컴포넌트 설정
+        from("netty-http:http://0.0.0.0:"+httpPort+"/?matchOnUriPrefix=true")
+            .process(exchange -> {
+                String path = exchange.getIn().getHeader(Exchange.HTTP_PATH, String.class);
+                if (path == null || path.isEmpty() || path.equals("/") || !path.contains(".")) {
+                    path = "index.html"; // 기본 페이지 설정
+                }
+                byte[] fileContent = Files.readAllBytes(Paths.get("src/main/resources/web", path));
+                exchange.getMessage().setBody(fileContent);
+                // 파일 확장자에 따라 적절한 Content-Type 설정
+                String contentType = Files.probeContentType(Paths.get("src/main/resources/web", path));
+                if (contentType != null) {
+                    exchange.getMessage().setHeader(Exchange.CONTENT_TYPE, contentType);
+                }
+            });
+
+
+        // API 엔드포인트 구현
+        from("direct:hello")
+            .setBody().constant("Hello from Camel!");
 
         // ClusterResource의 엔드포인트를 Camel REST DSL로 정의합니다.
         rest("/cluster").produces("application/json")

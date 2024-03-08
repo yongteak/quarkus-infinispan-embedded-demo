@@ -4,6 +4,8 @@ greeting:
 quarkus:
   infinispan-embedded:
     xml-config: infinispan-tcp-unencrypted.xml
+  http:
+    port : -1 #  Quarkus의 HTTP 서버 비활성화 (export QUARKUS_HTTP_PORT=8082)
   datasource:
     db-kind: sqlite # 이미 설정되어 있는 경우, 이 줄은 수정하지 않아도 됩니다.
     jdbc:
