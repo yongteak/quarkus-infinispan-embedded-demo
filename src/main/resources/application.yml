@@ -5,8 +5,15 @@ quarkus:
   infinispan-embedded:
     xml-config: infinispan-tcp-unencrypted.xml
   datasource:
-    db-kind: sqlite
+    db-kind: sqlite # 이미 설정되어 있는 경우, 이 줄은 수정하지 않아도 됩니다.
     jdbc:
-      url: jdbc:sqlite:./mydatabase.db
+      url: jdbc:sqlite:./mydatabase.db # 이미 설정되어 있는 경우, 이 줄은 수정하지 않아도 됩니다.
+    devservices:
+      enabled: false # Dev Services 비활성화
+  log:
+    level: INFO
+    category:
+      "io.route":
+        level: DEBUG
   # http:
   #   port: 8081

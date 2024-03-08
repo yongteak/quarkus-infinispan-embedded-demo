@@ -31,11 +31,11 @@ dependencies {
     implementation(enforcedPlatform("${quarkusPlatformGroupId}:quarkus-camel-bom:${quarkusPlatformVersion}"))
     implementation("io.quarkiverse.jdbc:quarkus-jdbc-sqlite:3.0.6")
     implementation(enforcedPlatform("${quarkusPlatformGroupId}:${quarkusPlatformArtifactId}:${quarkusPlatformVersion}"))
-    implementation("io.quarkus:quarkus-resteasy-reactive-jackson")
+    // implementation("io.quarkus:quarkus-resteasy-reactive-jackson")
     implementation("io.quarkus:quarkus-config-yaml")
     implementation("io.quarkus:quarkus-container-image-jib")
     implementation("io.quarkus:quarkus-arc")
-    implementation("io.quarkus:quarkus-resteasy-reactive")
+    // implementation("io.quarkus:quarkus-resteasy-reactive")
 
     implementation("org.infinispan:infinispan-quarkus-embedded:${infinispanVersion}")
     annotationProcessor("org.infinispan.protostream:protostream-processor:${protostreamVersion}")

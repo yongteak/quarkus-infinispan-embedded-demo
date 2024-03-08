@@ -1,0 +1,6 @@
+[2024-03-08 10:19:38]
+native빌드, (OSX M2 PRO) 약 5분 소요
+quarkus build --native
+
+native-image 패키지 설치 필요
+https://pomfret.uk/posts/install-graalvm-and-native-image-on-an-m1-mac-java11/

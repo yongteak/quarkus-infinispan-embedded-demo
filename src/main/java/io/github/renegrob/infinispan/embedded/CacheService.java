@@ -1,6 +1,7 @@
 package io.github.renegrob.infinispan.embedded;
 
 import io.quarkus.runtime.Startup;
+import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;
 import jakarta.inject.Singleton;
 import org.infinispan.Cache;
@@ -13,8 +14,9 @@ import java.util.Set;
 /**
  * This startup bean starts the cache service
  */
-@Startup
-@Singleton
+// @Startup
+// @Singleton
+@ApplicationScoped
 public class CacheService {
 
     /**

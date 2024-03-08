@@ -10,13 +10,13 @@ import static org.hamcrest.CoreMatchers.startsWith;
 @QuarkusTest
 public class CacheResourceTest {
 
-    @Test
-    public void testCacheEndpoint() {
-        given()
-          .when().get("/cache/testKey")
-          .then()
-             .statusCode(200)
-             .body(startsWith("{\"createdAt\":\""));
-    }
+    // @Test
+    // public void testCacheEndpoint() {
+    //     given()
+    //       .when().get("/cache/testKey")
+    //       .then()
+    //          .statusCode(200)
+    //          .body(startsWith("{\"createdAt\":\""));
+    // }
 
 }
