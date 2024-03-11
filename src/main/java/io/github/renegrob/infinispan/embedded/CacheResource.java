@@ -10,9 +10,9 @@ public class CacheResource {
 //     CacheResource(EmbeddedCacheManager emc, CacheListenerCDIBridge eventBridge) {
 //         this.cache = emc.getCache();
 
-//         cacheListeners.add(new CacheListener());
-//         cacheListeners.add(new CacheListenerAdapter(eventBridge));
-//         cacheListeners.forEach(this.cache::addListener);
+        // cacheListeners.add(new CacheListener());
+        // cacheListeners.add(new CacheListenerAdapter(eventBridge));
+        // cacheListeners.forEach(this.cache::addListener);
 //     }
 
 //     void onStop(@Observes ShutdownEvent ev) {

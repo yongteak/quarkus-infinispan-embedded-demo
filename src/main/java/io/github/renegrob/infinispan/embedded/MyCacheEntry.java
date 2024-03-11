@@ -5,6 +5,9 @@ import org.infinispan.protostream.annotations.ProtoField;
 
 import java.time.Instant;
 
+// @Getter
+// @Setter
+// @AllArgsConstructor
 public class MyCacheEntry {
 
     private final Instant createdAt;

@@ -1,0 +1,56 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MetaMask 연동 및 정보 표시 예제</title>
+    <!-- Bootstrap CSS -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+</head>
+<body>
+    <div class="container">
+        <h1 class="mt-5">MetaMask 연동 및 정보 표시</h1>
+        <button id="connectButton" class="btn btn-primary mt-3">MetaMask에 연결</button>
+        <button id="disconnectButton" class="btn btn-secondary mt-3" disabled>연결 해제</button>
+        <textarea id="infoArea" class="form-control mt-3" rows="10" readonly></textarea>
+    </div>
+
+    <!-- Bootstrap JS, Popper.js, and jQuery -->
+    <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.2/dist/umd/popper.min.js"></script>
+    <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+    <script>
+        const ethereumButton = document.querySelector('#connectButton');
+        const disconnectButton = document.querySelector('#disconnectButton');
+        const infoArea = document.querySelector('#infoArea');
+
+        ethereumButton.addEventListener('click', () => {
+            if (typeof window.ethereum !== 'undefined') {
+                window.ethereum.request({ method: 'eth_requestAccounts' })
+                .then(accounts => {
+                    const account = accounts[0];
+                    ethereumButton.disabled = true;
+                    disconnectButton.disabled = false;
+                    infoArea.value = `MetaMask에 연결되었습니다: ${account}\n`;
+                    // 추가 정보를 여기에 표시할 수 있습니다.
+                })
+                .catch(err => {
+                    console.error(err);
+                    alert('MetaMask 연결에 실패했습니다.');
+                });
+            } else {
+                alert('MetaMask를 설치해주세요.');
+            }
+        });
+
+        disconnectButton.addEventListener('click', () => {
+            // 연결 해제 처리
+            ethereumButton.disabled = false;
+            disconnectButton.disabled = true;
+            infoArea.value = 'MetaMask 연결이 해제되었습니다.\n';
+            // 실제로 MetaMask 연결을 해제하는 API는 없으므로, UI 상태만 변경합니다.
+        });
+    </script>
+</body>
+</html>

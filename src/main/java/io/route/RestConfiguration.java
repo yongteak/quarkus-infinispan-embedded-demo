@@ -15,6 +15,7 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.github.renegrob.infinispan.embedded.CacheService;
+import io.github.renegrob.infinispan.embedded.MyCacheEntry;
 
 @ApplicationScoped
 public class RestConfiguration extends RouteBuilder {
@@ -30,13 +31,15 @@ public class RestConfiguration extends RouteBuilder {
     @Inject
     CacheService cacheService;
 
+    final String web_root = "src/main/resources/META-INF/resources/web";
+
 
     @Override
     public void configure() throws Exception {
         restConfiguration().component("netty-http")
             // .contextPath("/v1/sdap/service")
             .port(apiPort)
-            .bindingMode(RestBindingMode.json)
+            .bindingMode(RestBindingMode.auto)
             .jsonDataFormat("json-jackson").enableCORS(true)
             .dataFormatProperty("prettyPrint", "true");
 
@@ -51,10 +54,10 @@ public class RestConfiguration extends RouteBuilder {
                 if (path == null || path.isEmpty() || path.equals("/") || !path.contains(".")) {
                     path = "index.html"; // 기본 페이지 설정
                 }
-                byte[] fileContent = Files.readAllBytes(Paths.get("src/main/resources/web", path));
+                byte[] fileContent = Files.readAllBytes(Paths.get(web_root, path));
                 exchange.getMessage().setBody(fileContent);
                 // 파일 확장자에 따라 적절한 Content-Type 설정
-                String contentType = Files.probeContentType(Paths.get("src/main/resources/web", path));
+                String contentType = Files.probeContentType(Paths.get(web_root, path));
                 if (contentType != null) {
                     exchange.getMessage().setHeader(Exchange.CONTENT_TYPE, contentType);
                 }
@@ -106,5 +109,6 @@ public class RestConfiguration extends RouteBuilder {
         //     .process(exchange -> {
         //         exchange.getMessage().setBody(/* 여기에 protocols 로직을 구현합니다. */);
         //     });
+
     }
 }

@@ -1,0 +1,98 @@
+package io.route;
+
+import org.apache.camel.builder.RouteBuilder;
+import org.apache.camel.component.jackson.JacksonDataFormat;
+import org.apache.camel.model.dataformat.JsonLibrary;
+import org.apache.camel.model.rest.RestBindingMode;
+// import org.hibernate.mapping.Map;
+import java.util.Map;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import io.github.renegrob.infinispan.embedded.CacheService;
+import io.github.renegrob.infinispan.embedded.MyCacheEntry;
+import io.github.renegrob.infinispan.embedded.MyCacheEntryProducer;
+import io.model.cache.MyEntry;
+import jakarta.enterprise.context.ApplicationScoped;
+import jakarta.inject.Inject;
+import jakarta.ws.rs.core.MediaType;
+
+@ApplicationScoped
+public class CacheRoute extends RouteBuilder {
+
+     static final Logger LOG = LoggerFactory.getLogger(CacheRoute.class);
+
+     @Inject
+    CacheService cacheService;
+     @Override
+    public void configure() throws Exception {
+        JacksonDataFormat jacksonDataFormat = new JacksonDataFormat();
+        jacksonDataFormat.addModule(new com.fasterxml.jackson.datatype.jsr310.JavaTimeModule());
+        jacksonDataFormat.setUnmarshalType(MyEntry.class);
+
+
+         restConfiguration().component("netty-http");
+            // .contextPath("/v1/sdap/service")
+            // .port(apiPort)
+            // .bindingMode(RestBindingMode.auto)
+
+            // .jsonDataFormat("json-jackson")
+            // .enableCORS(true)
+            // .dataFormatProperty("prettyPrint", "true");
+        // 캐시에 데이터를 추가하는 엔드포인트
+        rest("/cache")
+        .consumes(MediaType.APPLICATION_JSON)
+        .produces(MediaType.APPLICATION_JSON)
+        .post("/{key}").to("direct:createEntry")
+        .get("/{key}").to("direct:readEntry")
+        .put("/{key}").to("direct:updateEntry")
+        .delete("/{key}").to("direct:deleteEntry");
+
+        rest("/hello")
+        .get()
+        .produces("application/json")
+        .to("direct:helloWorld");
+        
+    from("direct:helloWorld")
+    
+        .setBody().constant("{\"message\": \"Hello, World!\"}");
+        
+    from("direct:createEntry")
+        .log("Received create entry request with body: ${body}") // JSON 입력 로그
+        // .marshal().json(JsonLibrary.Jackson)
+        .unmarshal(jacksonDataFormat)
+        .process(exchange -> {
+            String key = exchange.getIn().getHeader("key", String.class);
+            MyEntry value = exchange.getIn().getBody(MyEntry.class);
+            // //     return cache.computeIfAbsentAsync(key, MyCacheEntryProducer.INSTANCE, 10, TimeUnit.SECONDS);
+            MyCacheEntry result = cacheService.createEntry(key);
+            exchange.getMessage().setHeader("value", value);
+            exchange.getMessage().setHeader("result", result);
+            exchange.getMessage().setBody(key);
+        });
+        // .log("Created entry with value: ${header.value},result:${header.result} and value: ${body}"); // 처리 결과 로그;
+
+    from("direct:readEntry")
+        .log("run => direct:readEntry") // JSON 입력 로그
+        .process(exchange -> {
+            String key = exchange.getIn().getHeader("key", String.class);
+            MyCacheEntry result = cacheService.readEntry(key);
+            exchange.getMessage().setBody(result);
+        });
+
+    from("direct:updateEntry")
+        .process(exchange -> {
+            String key = exchange.getIn().getHeader("key", String.class);
+            MyCacheEntry value = exchange.getIn().getBody(MyCacheEntry.class);
+            MyCacheEntry result = cacheService.updateEntry(key, value);
+            exchange.getMessage().setBody(result);
+        });
+
+    from("direct:deleteEntry")
+        .process(exchange -> {
+            String key = exchange.getIn().getHeader("key", String.class);
+            MyCacheEntry result = cacheService.deleteEntry(key);
+            exchange.getMessage().setBody(result);
+        });
+    }
+}

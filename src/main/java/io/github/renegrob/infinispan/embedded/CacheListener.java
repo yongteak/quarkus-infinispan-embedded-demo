@@ -17,6 +17,6 @@ public class CacheListener {
 
     @CacheEntryCreated
     public void entryCreated(CacheEntryCreatedEvent<String, MyCacheEntry> event) {
-        LOG.info("-- Entry for {} with value {} created", event.getKey(), event.getValue());
+        LOG.info("-- [생성] {} with value {} created", event.getKey(), event.getValue());
     }
 }

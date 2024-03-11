@@ -17,6 +17,7 @@ val infinispanVersion: String by project
 val protostreamVersion: String by project;
 
 dependencies {
+    implementation("io.quarkus:quarkus-jackson")
     implementation("org.apache.camel.quarkus:camel-quarkus-file")
     implementation("io.quarkus:quarkus-resteasy")
     implementation("org.apache.camel.quarkus:camel-quarkus-netty-http")
@@ -44,6 +45,13 @@ dependencies {
     compileOnly("org.infinispan.protostream:protostream-processor:${protostreamVersion}")
     // incompatible: implementation("org.infinispan:infinispan-cdi-embedded:${infinispanVersion}")
     implementation("org.jboss.slf4j:slf4j-jboss-logmanager")
+
+    // implementation("org.projectlombok:lombok")
+    compileOnly("org.projectlombok:lombok:1.18.30")
+    annotationProcessor("org.projectlombok:lombok:1.18.30")
+
+    implementation("com.fasterxml.jackson.datatype:jackson-datatype-jsr310:2.13.0") // Kotlin DSL
+    
 
     testImplementation("io.quarkus:quarkus-junit5")
     testImplementation("io.rest-assured:rest-assured")
