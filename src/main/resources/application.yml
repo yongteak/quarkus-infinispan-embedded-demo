@@ -4,6 +4,11 @@ greeting:
 quarkus:
   infinispan-embedded:
     xml-config: infinispan-tcp-unencrypted.xml
+  native:
+    resources:
+      includes: ["**/*"]
+        # - *
+        # - META-INF/**
   http:
     port : -1 #  Quarkus의 HTTP 서버 비활성화 (export QUARKUS_HTTP_PORT=8082)
   datasource:
@@ -17,5 +22,9 @@ quarkus:
     category:
       "io.route":
         level: DEBUG
+  blockchain:
+    rpc-url: "https://go.getblock.io/82cb819aa8b14b9abd1d0c76e0ab1c68"
+    contract-address: "0x0733618ab62eeec815f2d1739b7a50bf9e74d8a2"
+    contract-abi-path: "src/main/resources/META-INF/resources/web3/deployed/EcosystemToken.PMG.json"
   # http:
   #   port: 8081

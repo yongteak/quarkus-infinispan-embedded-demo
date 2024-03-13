@@ -1,24 +1,6 @@
 <infinispan>
-     <threads>
-      <thread-factory name="infinispan-factory" group-name="infinispan" thread-name-pattern="%G %i" priority="5"/>
-      <!-- listener-executor -->
-      <blocking-bounded-queue-thread-pool name="infinispan-listener" thread-factory="infinispan-factory"
-                                          core-threads="1" max-threads="1" queue-length="0" keepalive-time="0"/>
-
-      <blocking-bounded-queue-thread-pool name="infinispan-blocking" thread-factory="infinispan-factory"
-                                          core-threads="3" max-threads="8" queue-length="121" keepalive-time="9859" />
-
-      <non-blocking-bounded-queue-thread-pool name="infinispan-non-blocking" thread-factory="infinispan-factory"
-                                              core-threads="12" max-threads="15" queue-length="132" keepalive-time="9851" />
-      <!-- expiration-executor -->
-      <scheduled-thread-pool name="infinispan-expiration" thread-factory="infinispan-factory" />
-   </threads>
-
+    <!-- 인피니스팬 캐시 컨테이너 설정 시작 -->
     <cache-container default-cache="myDefaultCache">
-    <!-- expiration-executor="infinispan-expiration"
-                    listener-executor="infinispan-listener" non-blocking-executor="infinispan-non-blocking"
-                    blocking-executor="infinispan-blocking"
-                    statistics="true" shutdown-hook="DONT_REGISTER" zero-capacity-node="false"> -->
         <!-- 
             Infinispan에서 영속성을 사용하기 위해서는 먼저 전역 상태를 활성화해야 합니다. 
             전역 상태는 Infinispan 인스턴스의 중요한 메타데이터를 저장하는 데 사용되며, 
@@ -31,14 +13,7 @@
         <global-state enabled="true">
             <persistent-location path="${infinispan.store.persistent.path:data}"/>
             <temporary-location path="${infinispan.store.temporary.path:data}"/>
-            <overlay-configuration-storage />
         </global-state>
-        <!-- <global-state>
-            <persistent-location path="quarkus-persistentPath" relative-to="java.io.tmpdir" />
-            <shared-persistent-location path="quarkus-sharedPath" relative-to="java.io.tmpdir" />
-            <temporary-location path="quarkus-tmpPath" relative-to="java.io.tmpdir" />
-            <overlay-configuration-storage />
-      </global-state> -->
 <!-- <file-store path="${infinispan.store.temporary.path:oraclizer/store/temporary/data}"/> -->
         <!-- <file-store path="/oraclizer/store/data" relative-to="user.home"/> -->
         <!--
@@ -50,15 +25,11 @@
         CUSTOM: 사용자 정의 로직을 통해 파티션을 선택합니다.
         이러한 전략은 캐시 컨테이너 또는 캐시 수준에서 설정할 수 있으며, 클러스터 환경과 애플리케이션의 요구 사항에 따라 적절한 전략을 선택해야 합니다.
         -->
-        <!-- <partition-handling when-split="DENY_READ_WRITES" merge-policy="PREFERRED_NON_EMPTY"/> -->-->
+        <!-- <partition-handling when-split="DENY_READ_WRITES" merge-policy="PREFERRED_NON_EMPTY"/> -->
+        <!-- 클러스터 통신을 위해 "udp" 스택 사용. "aes-encrypted-tcp-stack" 주석은 오해의 소지가 있음 -->
         <transport cluster="${infinispan.cluster.name:local}"
-                   stack="tcp"
-                   node-name="${infinispan.node.name:nooooop}">
-            <property name="key">value</property>
-        </transport>
-
-        <!-- export INFINISPAN_NODE_NAME=myNode1
-        export QUARKUS_INFINISPAN_EMBEDDED_INFINISPAN_NODE_NAME=myNode000 -->
+                   stack="udp"
+                   node-name="${infinispan.node.name:}" />
         <!-- 
         클러스터를 구성하는 모든 노드의 설정 파일에 initial_hosts 속성이 동일한 값으로 설정되어야 함을 의미합니다. 
         즉, 각 노드의 설정 파일에서 initial_hosts에 명시된 IP 주소와 포트 번호가 모두 같아야 한다는 것입니다. 
@@ -85,33 +56,22 @@
                 시간이 지남에 따라 모든 노드가 최종적으로 동일한 데이터 상태를 갖게 되는 것을 의미합니다. 
                 비동기 모드에서는 업데이트가 지연될 수 있지만, 결국에는 모든 노드가 동기화됩니다.
         -->
-        <global-state enabled="true" />
-        <distributed-cache-configuration name="myDistributedCacheTemplate"
-                                         mode="SYNC"
-                                         statistics="true"
-                                         owners="2"> <!-- 통계 활성화 -->
+        <replicated-cache-configuration name="myDistributedCacheTemplate"
+                                         mode="ASYNC"
+                                         statistics="true"> <!-- 통계 활성화 -->
             <expiration lifespan="-1" max-idle="-1"/>                                        
             <encoding>
                 <key media-type="text/plain"/>
                 <value media-type="application/x-protostream"/>
             </encoding>
-        </distributed-cache-configuration>
+        </replicated-cache-configuration>
         <!-- 위에서 정의한 템플릿을 사용하여 "myDefaultCache"라는 이름의 분산 캐시 생성 -->
-        <distributed-cache name="myDefaultCache" configuration="myDistributedCacheTemplate">
-        <!--
-            NON_XA: 간단한 트랜잭션을 지원합니다. XA(분산 트랜잭션)가 아닌 로컬 트랜잭션을 사용하여 리소스를 관리합니다. 
-            이 모드는 여러 데이터 소스 간의 분산 트랜잭션을 필요로 하지 않는 경우에 적합합니다.
-         -->
-            <transaction mode="NON_XA"/>
+        <replicated-cache name="myDefaultCache" configuration="myDistributedCacheTemplate">
             <persistence>
                 <!-- <file-store path="${infinispan.store.path:/oraclizer/store/data}" relative-to="user.home"/> -->
                 <file-store path="${infinispan.store.persistence.path:data}"/>
                 <!-- <temporary-location path="/oraclizer/store/temporary/data" relative-to="user.home"/> -->
             </persistence>
-            <encoding>
-            <key media-type="text/plain; charset=UTF-8"/>
-            <value media-type="text/plain; charset=UTF-8"/>
-        </encoding>
             <!--
                 timeout: 상태 전송 과정이 완료되기를 기다리는 최대 시간(밀리초 단위)입니다.
                 chunk-size: 한 번에 전송되는 데이터의 최대 크기(바이트 단위)입니다.
@@ -123,6 +83,6 @@
                 장애 상황에서 업데이트를 임시로 저장하고 나중에 전송할 방법이 없습니다.
              -->
             <!-- <async use-repl-queue="true" repl-queue-interval="5000" repl-queue-max-elements="1000"/> -->
-        </distributed-cache>
+        </replicated-cache>
     </cache-container>
 </infinispan>

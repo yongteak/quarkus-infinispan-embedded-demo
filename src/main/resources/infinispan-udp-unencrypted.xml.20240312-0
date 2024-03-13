@@ -1,0 +1,53 @@
+<infinispan>
+    <!-- 인피니스팬 캐시 컨테이너 설정 시작 -->
+    <cache-container default-cache="myDefaultCache">
+        <!-- 클러스터 통신을 위해 "udp" 스택 사용. "aes-encrypted-tcp-stack" 주석은 오해의 소지가 있음 -->
+        <transport cluster="${infinispan.cluster.name:local}"
+                   stack="udp"
+                   node-name="${infinispan.node.name:}" />
+        <!-- 
+        클러스터를 구성하는 모든 노드의 설정 파일에 initial_hosts 속성이 동일한 값으로 설정되어야 함을 의미합니다. 
+        즉, 각 노드의 설정 파일에서 initial_hosts에 명시된 IP 주소와 포트 번호가 모두 같아야 한다는 것입니다. 
+        이렇게 함으로써, 클러스터 내의 모든 노드가 시작 시 동일한 노드 목록을 바탕으로 서로를 찾고 연결할 수 있게 됩니다.
+        이는 클러스터 형성 과정에서 모든 노드가 일관된 정보를 바탕으로 서로를 인식하고, 
+        효율적으로 통신 네트워크를 구성할 수 있도록 하기 위함입니다. 만약 노드별로 initial_hosts 설정이 다르다면, 
+        일부 노드가 클러스터에 제대로 참여하지 못하거나, 예상치 못한 네트워크 분할이 발생할 수 있습니다. 
+        따라서 클러스터를 안정적으로 운영하려면 이 설정을 모든 노드에서 동일하게 유지하는 것이 중요합니다
+        -->
+        <!-- <properties> -->
+            <!-- <property name="initial_hosts" value="10.1.1.1[7800],10.1.1.2[7800]" /> -->
+            <!-- 여기서 [7800]은 JGroups 통신에 사용되는 포트 번호입니다. 실제 환경에 맞게 조정하세요. -->
+        <!-- </properties> -->
+        <!-- 분산 캐시 설정 템플릿 정의 -->
+        <!--
+            SYNC (동기 모드): 이 모드에서는 캐시 업데이트(삽입, 수정, 삭제 등)가 클러스터 내의 모든 노드에 
+                동기적으로 반영됩니다. 즉, 작업이 완료되기 전에 모든 관련 노드가 업데이트를 받아야 합니다. 
+                이는 데이터 일관성을 유지하는 데 유리하지만, 네트워크 지연으로 인해 성능이 저하될 수 있습니다.
+            ASYNC (비동기 모드): 비동기 모드에서는 캐시 업데이트가 비동기적으로 수행됩니다. 
+                작업을 요청한 노드는 다른 노드들이 업데이트를 완료할 때까지 기다리지 않고 
+                즉시 다음 작업을 진행할 수 있습니다. 이는 성능을 향상시킬 수 있지만, 
+                클러스터 내의 데이터 일관성을 보장하기 어려울 수 있습니다.
+                => 최종 일관성(Eventual Consistency): 
+                시간이 지남에 따라 모든 노드가 최종적으로 동일한 데이터 상태를 갖게 되는 것을 의미합니다. 
+                비동기 모드에서는 업데이트가 지연될 수 있지만, 결국에는 모든 노드가 동기화됩니다.
+        -->
+        <distributed-cache-configuration name="myDistributedCacheTemplate"
+                                         mode="ASYNC" <!-- 동기 모드로 설정 -->
+                                         owners="2" <!-- 데이터 소유자 수를 2로 설정 -->
+                                         statistics="true"> <!-- 통계 활성화 -->
+                                        
+            <expiration lifespan="60000"/>                                    
+            <!-- 키와 값의 인코딩 설정 -->
+            <encoding>
+                <key media-type="text/plain"/> <!-- 키는 텍스트 형식 -->
+                <value media-type="application/x-protostream"/> <!-- 값은 프로토스트림 형식 -->
+            </encoding>
+            <!-- 메모리 설정 -->
+            <memory max-count="1000000" <!-- 최대 항목 수를 100만으로 설정 -->
+                    when-full="REMOVE"/> <!-- 가득 차면 항목 제거 -->
+        </distributed-cache-configuration>
+
+        <!-- 위에서 정의한 템플릿을 사용하여 "myDefaultCache"라는 이름의 분산 캐시 생성 -->
+        <distributed-cache name="myDefaultCache" configuration="myDistributedCacheTemplate" />
+    </cache-container>
+</infinispan>
