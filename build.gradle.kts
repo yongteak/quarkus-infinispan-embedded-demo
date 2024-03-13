@@ -17,6 +17,8 @@ val infinispanVersion: String by project
 val protostreamVersion: String by project;
 
 dependencies {
+    implementation("org.apache.camel.quarkus:camel-quarkus-timer")
+    // implementation("org.apache.camel.quarkus:camel-quarkus-web3j")
     implementation("io.quarkus:quarkus-jackson")
     implementation("org.apache.camel.quarkus:camel-quarkus-file")
     implementation("io.quarkus:quarkus-resteasy")

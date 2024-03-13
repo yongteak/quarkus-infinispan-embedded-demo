@@ -3,6 +3,8 @@ package io;
 import io.quarkus.runtime.StartupEvent;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
+
+import java.io.InputStream;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
@@ -16,6 +18,37 @@ public class AppInitializer {
     static final Logger LOG = LoggerFactory.getLogger(AppInitializer.class);
 
     void onStart(@Observes StartupEvent ev) {
+
+        // String oraclizerHttpPort = System.getenv("ORACLIZER_HTTP_PORT");
+        // String oraclizerApiPort = System.getenv("ORACLIZER_API_PORT");
+        String infinispanStorePersistencePath = System.getenv("INFINISPAN_STORE_PERSISTENCE_PATH");
+        String infinispanStorePersistentPath = System.getenv("INFINISPAN_STORE_PERSISTENT_PATH");
+        String infinispanStoreTemporaryPath = System.getenv("INFINISPAN_STORE_TEMPORARY_PATH");
+
+        // System.out.println("ORACLIZER_HTTP_PORT: " + oraclizerHttpPort);
+        // System.out.println("ORACLIZER_API_PORT: " + oraclizerApiPort);
+        // System.out.println("INFINISPAN_CLUSTER_NAME: " + infinispanClusterName);
+        // System.out.println("INFINISPAN_NODE_NAME: " + infinispanNodeName);
+        System.out.println("INFINISPAN_STORE_PERSISTENCE_PATH: " + infinispanStorePersistencePath);
+        System.out.println("INFINISPAN_STORE_PERSISTENT_PATH: " + infinispanStorePersistentPath);
+        System.out.println("INFINISPAN_STORE_TEMPORARY_PATH: " + infinispanStoreTemporaryPath);
+
+        System.setProperty("infinispan.cluster.name", System.getenv("INFINISPAN_CLUSTER_NAME"));
+        System.setProperty("infinispan.node.name", System.getenv("INFINISPAN_NODE_NAME"));
+        System.setProperty("infinispan.store.persistence.path", System.getenv("INFINISPAN_STORE_PERSISTENCE_PATH"));
+        System.setProperty("infinispan.store.persistent.path", System.getenv("INFINISPAN_STORE_PERSISTENT_PATH"));
+        System.setProperty("infinispan.store.temporary.path", System.getenv("INFINISPAN_STORE_TEMPORARY_PATH"));
+        
+        String home = System.getProperty("user.home");
+        LOG.info("### user.home ==>>> ",home);
+
+        InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream("infinispan-tcp-unencrypted.xml");
+        if (is == null) {
+            throw new RuntimeException("File not found [ infinispan-tcp-unencrypted.xml ]");
+        } else {
+            LOG.info("INCLUDED!! infinispan-tcp-unencrypted.xml");    
+        }
+        
         LOG.info("Application started. Initializing database and tables...");
         String url = "jdbc:sqlite:./database.db";
         try (Connection conn = DriverManager.getConnection(url)) {
