@@ -1,0 +1,8 @@
+[
+    {
+      "name": "io.model.cache.MyEntry",
+      "allPublicConstructors": true,
+      "allPublicMethods": true,
+      "allPublicFields": true
+    }
+  ]

@@ -67,10 +67,10 @@ public class CacheRoute extends RouteBuilder {
         .unmarshal(jacksonDataFormat)
         .process(exchange -> {
             MyEntry entry = exchange.getIn().getBody(MyEntry.class);
-            MyCacheEntry cacheEntry = new MyCacheEntry(entry.getKey(), entry.getValue());
-            System.out.println("## cacheEntry >>>> " + cacheEntry.getKey());
-            cacheService.updateEntry(entry.getKey(), cacheEntry);
-            exchange.getMessage().setBody("okok");
+            // MyCacheEntry cacheEntry = new MyCacheEntry(entry.getKey(), entry);
+            System.out.println("## cacheEntry >>>> " + entry.toJson());
+            cacheService.updateEntry(entry.getKey(), entry);
+            exchange.getMessage().setBody(entry.toJson());
         });
         // .log("Created entry with value: ${header.value},result:${header.result} and value: ${body}"); // 처리 결과 로그;
 
@@ -79,7 +79,7 @@ public class CacheRoute extends RouteBuilder {
         .unmarshal(jacksonDataFormat)
         .process(exchange -> {
             MyEntry entry = exchange.getIn().getBody(MyEntry.class);
-            MyCacheEntry result = cacheService.readEntry(entry.getKey());
+            String result = cacheService.readEntry(entry.getKey());
             // String key = exchange.getIn().getHeader("key", String.class);
             // MyCacheEntry result = cacheService.readEntry(key);
             exchange.getMessage().setBody(result);
@@ -88,18 +88,18 @@ public class CacheRoute extends RouteBuilder {
     from("direct:updateEntry")
         .unmarshal(jacksonDataFormat)
         .process(exchange -> {
-            MyEntry entry = exchange.getIn().getBody(MyEntry.class);
-            MyCacheEntry cacheEntry = new MyCacheEntry(entry.getKey(), entry.getValue());
-            cacheService.updateEntry(entry.getKey(), cacheEntry);
-            exchange.getMessage().setBody("ok");
+            // MyEntry entry = exchange.getIn().getBody(MyEntry.class);
+            // MyCacheEntry cacheEntry = new MyCacheEntry(entry.getKey(), entry.getValue());
+            // cacheService.updateEntry(entry.getKey(), entry.getValue());
+            // exchange.getMessage().setBody("ok");
         });
 
     from("direct:deleteEntry")
         .unmarshal(jacksonDataFormat)
         .process(exchange -> {
-            String key = exchange.getIn().getHeader("key", String.class);
-            MyCacheEntry result = cacheService.deleteEntry(key);
-            exchange.getMessage().setBody(result);
+            // String key = exchange.getIn().getHeader("key", String.class);
+            // String result = cacheService.deleteEntry(key);
+            // exchange.getMessage().setBody(result);
         });
     }
 }

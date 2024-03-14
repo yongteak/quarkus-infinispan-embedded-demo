@@ -3,25 +3,28 @@ package io.github.renegrob.infinispan.embedded;
 import org.infinispan.protostream.annotations.ProtoFactory;
 import org.infinispan.protostream.annotations.ProtoField;
 
+import io.quarkus.runtime.annotations.RegisterForReflection;
+
 import java.time.Instant;
 
 // @Getter
 // @Setter
 // @AllArgsConstructor
+@RegisterForReflection
 public class MyCacheEntry {
 
-    private final Instant createdAt;
+    private final String key;
     private final String value;
 
     @ProtoFactory
-    public MyCacheEntry(Instant createdAt, String value) {
-        this.createdAt = createdAt;
+    public MyCacheEntry(String key, String value) {
+        this.key = key;
         this.value = value;
     }
 
     @ProtoField(number = 1, required = true)
-    public Instant getCreatedAt() {
-        return createdAt;
+    public String getKey() {
+        return key;
     }
 
     @ProtoField(number = 2, required = true)
@@ -32,7 +35,7 @@ public class MyCacheEntry {
     @Override
     public String toString() {
         return "MyCacheEntry{" +
-                "createdAt=" + createdAt +
+                "key=" + key +
                 ", value='" + value + '\'' +
                 '}';
     }

@@ -1,0 +1,11 @@
+[
+    {
+        "name": "org.infinispan.commons.marshall.JavaSerializationMarshaller",
+        "allDeclaredConstructors": true,
+        "allPublicConstructors": true,
+        "allDeclaredMethods": true,
+        "allPublicMethods": true,
+        "allDeclaredFields": true,
+        "allPublicFields": true
+    }
+]

@@ -1,4 +1,13 @@
-<infinispan>
+<infinispan xmlns="urn:infinispan:config:15.0.0.0"
+            xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+            xsi:schemaLocation="urn:infinispan:config:15.0.0.0 https://infinispan.org/schemas/infinispan-config-15.0.0.0.xsd">
+    <!-- <serialization marshaller="org.infinispan.commons.marshall.JavaSerializationMarshaller">
+        <white-list>
+            <class>io.model.cache.MyEntry</class>
+        </white-list>
+    </serialization> -->
+
+   
      <threads>
       <thread-factory name="infinispan-factory" group-name="infinispan" thread-name-pattern="%G %i" priority="5"/>
       <!-- listener-executor -->
@@ -15,6 +24,26 @@
    </threads>
 
     <cache-container default-cache="myDefaultCache">
+        <!-- <serialization marshaller="org.infinispan.commons.marshall.JavaSerializationMarshaller">
+            <allow-list>
+                <class>io.model.cache.MyEntry</class>
+            </allow-list>
+        </serialization> -->
+         <!-- <serialization marshaller="org.infinispan.commons.marshall.JavaSerializationMarshaller">
+            <white-list>
+                <class>io.model.cache.MyEntry</class>
+            </white-list>
+        </serialization> -->
+        <!-- <serialization marshaller="org.infinispan.commons.marshall.JavaSerializationMarshaller">
+            <white-list>
+              <class>io.github.renegrob.infinispan.embedded.MyCacheEntry</class>
+            </white-list>
+        </serialization> -->
+        <!-- <serialization marshaller="org.infinispan.protostream.ProtobufSerializationMarshaller">
+            <white-list>
+              <class>io.github.renegrob.infinispan.embedded.MyCacheEntry</class>
+            </white-list>
+        </serialization> -->
     <!-- expiration-executor="infinispan-expiration"
                     listener-executor="infinispan-listener" non-blocking-executor="infinispan-non-blocking"
                     blocking-executor="infinispan-blocking"
@@ -52,7 +81,7 @@
         -->
         <!-- <partition-handling when-split="DENY_READ_WRITES" merge-policy="PREFERRED_NON_EMPTY"/> -->-->
         <transport cluster="${infinispan.cluster.name:local}"
-                   stack="tcp"
+                   stack="udp"
                    node-name="${infinispan.node.name:nooooop}">
             <property name="key">value</property>
         </transport>
@@ -91,13 +120,17 @@
                                          statistics="true"
                                          owners="2"> <!-- 통계 활성화 -->
             <expiration lifespan="-1" max-idle="-1"/>                                        
-            <encoding>
-                <key media-type="text/plain"/>
-                <value media-type="application/x-protostream"/>
-            </encoding>
+           
         </distributed-cache-configuration>
         <!-- 위에서 정의한 템플릿을 사용하여 "myDefaultCache"라는 이름의 분산 캐시 생성 -->
         <distributed-cache name="myDefaultCache" configuration="myDistributedCacheTemplate">
+         <encoding>
+                <key media-type="application/x-java-object"/>
+                <value media-type="text/plain"/>
+                <!-- <value media-type="application/x-protostream"/> -->
+            </encoding>
+
+           
         <!--
             NON_XA: 간단한 트랜잭션을 지원합니다. XA(분산 트랜잭션)가 아닌 로컬 트랜잭션을 사용하여 리소스를 관리합니다. 
             이 모드는 여러 데이터 소스 간의 분산 트랜잭션을 필요로 하지 않는 경우에 적합합니다.
@@ -108,10 +141,7 @@
                 <file-store path="${infinispan.store.persistence.path:data}"/>
                 <!-- <temporary-location path="/oraclizer/store/temporary/data" relative-to="user.home"/> -->
             </persistence>
-            <encoding>
-            <key media-type="text/plain; charset=UTF-8"/>
-            <value media-type="text/plain; charset=UTF-8"/>
-        </encoding>
+           
             <!--
                 timeout: 상태 전송 과정이 완료되기를 기다리는 최대 시간(밀리초 단위)입니다.
                 chunk-size: 한 번에 전송되는 데이터의 최대 크기(바이트 단위)입니다.

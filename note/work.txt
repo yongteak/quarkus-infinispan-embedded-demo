@@ -1,0 +1,27 @@
+[2024-03-14 16:06:11]
+    - encoding은 text/plain로 처리하는걸로, 네이티브 환경에서는 어쩔수가 없음. 네이티브 아닌환경(jar)은 뭘해도 다 잘동작함 ㅜㅜ
+    - <key media-type="text/plain"/>
+      <value media-type="application/x-java-object"/>
+    - 참고 https://infinispan.org/docs/stable/titles/encoding/encoding.html
+      <encoding>
+            <key media-type="text/plain"/>
+            <value media-type="application/x-java-object"/>
+            <!-- <value media-type="application/x-protostream"/> -->
+        </encoding>
+    - marshaller는 객체화 됨(reflection-config.json), MyEntry는 아래 오류로 동작안함, GPT로 많이 돌려봐도 결과 안나옴 ㅇㅇ;
+    Caused by: org.infinispan.persistence.spi.PersistenceException: SerializationConstructorAccessor class not found for declaringClass: io.model.cache.MyEntry (targetConstructorClass: java.lang.Object). Usually adding io.model.cache.MyEntry to serialization-config.json fixes the problem.
+    - <serialization marshaller="org.infinispan.commons.marshall.JavaSerializationMarshaller">
+            <allow-list>
+                <class>io.model.cache.MyEntry</class>
+            </allow-list>
+        </serialization>
+[2024-03-13 11:31:56]
+    - infinispan 설정 정보를 OS환경 설정으로 해도 적용이 안됨 (이유 모르겠음)
+    - AppInitializer.java에서 OSX환경 설정을 로드하여 infinispan의 환경 설정 항목에 적용하여 환경 변수를 사용할수 있도록함
+[2024-03-11 15:57:21]
+    quarkus 3.5.0 -> 3.8.2 변경, web3j okhttp오류 해결됨
+[2024-03-08 10:19:38]
+    native빌드, (OSX M2 PRO) 약 5분 소요
+    quarkus build --native
+    native-image 패키지 설치 필요
+    https://pomfret.uk/posts/install-graalvm-and-native-image-on-an-m1-mac-java11/

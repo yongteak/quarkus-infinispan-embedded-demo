@@ -42,6 +42,7 @@ dependencies {
     // implementation("io.quarkus:quarkus-resteasy-reactive")
 
     implementation("org.infinispan:infinispan-quarkus-embedded:${infinispanVersion}")
+    implementation("org.infinispan.protostream:protostream:${protostreamVersion}")
     annotationProcessor("org.infinispan.protostream:protostream-processor:${protostreamVersion}")
     // for the compile time dependency on org.infinispan.protostream.annotations.impl.processor.OriginatingClasses
     compileOnly("org.infinispan.protostream:protostream-processor:${protostreamVersion}")
