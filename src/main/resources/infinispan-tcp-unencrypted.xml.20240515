@@ -1,12 +1,26 @@
 <infinispan>
-     <jgroups transport="org.infinispan.remoting.transport.jgroups.JGroupsTransport">
-      <stack name="mping">
-         <TCP bind_port="7800" port_range="2" recv_buf_size="20000000" send_buf_size="640000"
-              sock_conn_timeout="300" bundler_type="transfer-queue"
-              thread_pool.min_threads="0" thread_pool.max_threads="25" thread_pool.keep_alive_time="5000"
-              thread_pool.thread_dumps_threshold="${jgroups.thread_dumps_threshold:10000}"
-              xmlns="urn:org:jgroups"/>
+    <jgroups transport="org.infinispan.remoting.transport.jgroups.JGroupsTransport">
+        <stack name="mping">
+            <!-- <MPING ispn:stack.combine="REMOVE" xmlns="urn:org:jgroups"/> -->
+            <TCP bind_addr="192.168.12.113" bind_port="7800" port_range="30" recv_buf_size="20000000" send_buf_size="640000"
+                sock_conn_timeout="300" bundler_type="transfer-queue"
+                thread_pool.min_threads="0" thread_pool.max_threads="25" thread_pool.keep_alive_time="5000"
+                thread_pool.thread_dumps_threshold="${jgroups.thread_dumps_threshold:10000}"
+                xmlns="urn:org:jgroups"/>
+            <!-- <TCPPING   initial_hosts="${infinispan.initial.hosts:localhost[7800]}"/> -->
+            <TCPGOSSIP initial_hosts="${infinispan.initial.hosts:localhost[7800]}" xmlns="urn:org:jgroups"/>
+
+
+            <!-- <TCP bind_addr="192.168.1.5" bind_port="7950"> -->
+<!-- <TCPPING initial_hosts="192.168.1.5[7950],192.168.1.6[7900]"/> -->
+            <!-- <stack name="tcpgossip" extends="tcp-test"> -->
+            <!-- <MPING ispn:stack.combine="REMOVE" xmlns="urn:org:jgroups"/> -->
+            <!-- <TCPGOSSIP initial_hosts="${jgroups.tunnel.gossip_router_hosts:localhost[12001]}" ispn:stack.combine="INSERT_AFTER" ispn:stack.position="RED" xmlns="urn:org:jgroups"/> -->
+            <!-- <TCPGOSSIP initial_hosts="${infinispan.initial.hosts:localhost[7800]}" xmlns="urn:org:jgroups"/> -->
+      <!-- </stack> -->
         </stack>
+    
+
     </jgroups>
      <threads>
       <thread-factory name="infinispan-factory" group-name="infinispan" thread-name-pattern="%G %i" priority="5"/>
@@ -37,11 +51,23 @@
             persistent-location과 temporary-location 속성을 사용하여 각각 영구 데이터와 임시
             데이터의 저장 위치를 지정할 수 있습니다:
         -->
-        <global-state enabled="true">
+        <!-- <global-state enabled="true">
             <persistent-location path="${infinispan.store.persistent.path:data}"/>
             <temporary-location path="${infinispan.store.temporary.path:data}"/>
             <overlay-configuration-storage />
-        </global-state>
+        </global-state> -->
+
+        <!-- <security>
+         <authorization audit-logger="org.infinispan.security.audit.NullAuditLogger">
+            <identity-role-mapper/>
+            <roles>
+               <role name="peasant" permissions="READ"/>
+               <role name="vavasour" permissions="READ WRITE"/>
+               <role name="vassal" permissions="READ WRITE LISTEN"/>
+               <role name="king" permissions="ALL"/>
+            </roles>
+         </authorization>
+      </security> -->
         <!-- <global-state>
             <persistent-location path="quarkus-persistentPath" relative-to="java.io.tmpdir" />
             <shared-persistent-location path="quarkus-sharedPath" relative-to="java.io.tmpdir" />
@@ -62,15 +88,15 @@
         <!-- <partition-handling when-split="DENY_READ_WRITES" merge-policy="PREFERRED_NON_EMPTY"/> -->-->
         <transport cluster="${infinispan.cluster.name:local}"
                    stack="mping"
-                   node-name="${infinispan.node.name:nooooop}">
+                   node-name="${infinispan.node.name:}">
             <properties>
-                <property name="bind_port" value="7800"/>
+                <!-- <property name="bind_port" value="7800"/> -->
                 <!-- initial_hosts 설정 예시 -->
-                <!-- <property name="initial_hosts" value="192.168.1.1[7800],192.168.1.2[7800]" /> -->
+                <!-- <property name="initial_hosts" value="${infinispan.initial.hosts:}" /> -->
                 <!-- 여기서 [7800]은 JGroups 통신에 사용되는 포트 번호입니다. 실제 환경에 맞게 조정하세요. -->
             </properties>
         </transport>
-
+        
         <!-- export INFINISPAN_NODE_NAME=myNode1
         export QUARKUS_INFINISPAN_EMBEDDED_INFINISPAN_NODE_NAME=myNode000 -->
         <!-- 
@@ -119,7 +145,7 @@
             <transaction mode="NON_XA"/>
             <persistence>
                 <!-- <file-store path="${infinispan.store.path:/oraclizer/store/data}" relative-to="user.home"/> -->
-                <file-store path="${infinispan.store.persistence.path:data}"/>
+                <!-- <file-store path="${infinispan.store.persistence.path:data}"/> -->
                 <!-- <temporary-location path="/oraclizer/store/temporary/data" relative-to="user.home"/> -->
             </persistence>
             <!--
@@ -133,6 +159,9 @@
                 장애 상황에서 업데이트를 임시로 저장하고 나중에 전송할 방법이 없습니다.
              -->
             <!-- <async use-repl-queue="true" repl-queue-interval="5000" repl-queue-max-elements="1000"/> -->
+            <!-- <security>
+                <authorization roles="peasant vavasour vassal king"/>
+            </security> -->
         </distributed-cache>
     </cache-container>
 </infinispan>

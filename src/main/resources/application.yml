@@ -12,9 +12,9 @@ quarkus:
   http:
     port : -1 #  Quarkus의 HTTP 서버 비활성화 (export QUARKUS_HTTP_PORT=8082)
   datasource:
-    db-kind: sqlite # 이미 설정되어 있는 경우, 이 줄은 수정하지 않아도 됩니다.
+    db-kind: sqlite
     jdbc:
-      url: jdbc:sqlite:./mydatabase.db # 이미 설정되어 있는 경우, 이 줄은 수정하지 않아도 됩니다.
+      url: jdbc:sqlite:./mydatabase.db
     devservices:
       enabled: false # Dev Services 비활성화
   log:
@@ -22,6 +22,10 @@ quarkus:
     category:
       "io.route":
         level: DEBUG
+    #   "org.infinispan": # Infinispan 로깅 레벨 상세 설정
+    #     level: TRACE
+    #   "org.jgroups": # JGroups 로깅 레벨 상세 설정
+    #     level: TRACE
   blockchain:
     rpc-url: "https://go.getblock.io/82cb819aa8b14b9abd1d0c76e0ab1c68"
     contract-address: "0x0733618ab62eeec815f2d1739b7a50bf9e74d8a2"

@@ -1,46 +1,65 @@
 #!/bin/bash
 
-# Check if an argument is provided
-if [ $# -ne 1 ]; then
-    echo "Usage: $0 <number>"
-    exit 1
-fi
+# Initialize default values
+NODE_PREFIX=0
+# INFINISPAN_BIND_PORT
+# INFINISPAN_INITIAL_HOSTS
 
-# Check if the argument is a non-negative integer
-if ! [[ $1 =~ ^[0-9]+$ ]]; then
-    echo "Error: Argument must be a non-negative integer."
-    exit 1
-fi
+# Parse command line arguments
+for arg in "$@"
+do
+    case $arg in
+        --node-prefix=*)
+        NODE_PREFIX="${arg#*=}"
+        ;;
+        --bind-port=*)
+        INFINISPAN_BIND_PORT="${arg#*=}"
+        ;;
+        --initial_hosts=*)
+        INFINISPAN_INITIAL_HOSTS="${arg#*=}"
+        ;;
+        *)
+        # Unknown option
+        ;;
+    esac
+done
 
-# Increment ports and node name based on the argument
-ORACLIZER_HTTP_PORT=$((8080 + $1))
-ORACLIZER_API_PORT=$((8090 + $1))
+# Use NODE_PREFIX for other configurations as needed
+ORACLIZER_HTTP_PORT=$((8080 + NODE_PREFIX))
+ORACLIZER_API_PORT=$((8090 + NODE_PREFIX))
 INFINISPAN_CLUSTER_NAME=cluster1
-INFINISPAN_NODE_NAME="node$1"
-INFINISPAN_STORE_PERSISTENCE_PATH="oraclizer/node$1/store/persistence/data"
-INFINISPAN_STORE_PERSISTENT_PATH="oraclizer/node$1/store/persistent/data"
-INFINISPAN_STORE_TEMPORARY_PATH="oraclizer/node$1/store/temporary/data"
-# Export the environment variables
+INFINISPAN_NODE_NAME="node$NODE_PREFIX"
+INFINISPAN_STORE_PERSISTENCE_PATH="oraclizer/node$NODE_PREFIX/store/persistence/data"
+INFINISPAN_STORE_PERSISTENT_PATH="oraclizer/node$NODE_PREFIX/store/persistent/data"
+INFINISPAN_STORE_TEMPORARY_PATH="oraclizer/node$NODE_PREFIX/store/temporary/data"
+
+# Export additional environment variables
 export ORACLIZER_HTTP_PORT
 export ORACLIZER_API_PORT
 export INFINISPAN_CLUSTER_NAME
 export INFINISPAN_NODE_NAME
-export INFINISPAN_STORE_PERSISTENCE_PATH;
-export INFINISPAN_STORE_PERSISTENT_PATH;
-export INFINISPAN_STORE_TEMPORARY_PATH;
-# infinispan.store.persistence.path
+export INFINISPAN_STORE_PERSISTENCE_PATH
+export INFINISPAN_STORE_PERSISTENT_PATH
+export INFINISPAN_STORE_TEMPORARY_PATH
+export INFINISPAN_BIND_PORT
+export INFINISPAN_INITIAL_HOSTS
 
+# Echo the settings for verification
+echo "NODE_PREFIX 설정: $NODE_PREFIX"
+echo "INFINISPAN_BIND_PORT 설정: $INFINISPAN_BIND_PORT"
+echo "INFINISPAN_INITIAL_HOSTS 설정: $INFINISPAN_INITIAL_HOSTS"
 echo "ORACLIZER_HTTP_PORT 설정: $ORACLIZER_HTTP_PORT"
 echo "ORACLIZER_API_PORT 설정: $ORACLIZER_API_PORT"
 echo "INFINISPAN_CLUSTER_NAME 설정: $INFINISPAN_CLUSTER_NAME"
 echo "INFINISPAN_NODE_NAME 설정: $INFINISPAN_NODE_NAME"
+
 # echo "INFINISPAN_STORE_PERSISTENCE_PATH 설정: $INFINISPAN_STORE_PERSISTENCE_PATH"
 # echo "INFINISPAN_STORE_PERSISTENT_PATH 설정: $INFINISPAN_STORE_PERSISTENT_PATH"
 # echo "INFINISPAN_STORE_TEMPORARY_PATH 설정: $INFINISPAN_STORE_TEMPORARY_PATH"
 
 
 # ___global.lck 파일의 경로를 지정합니다.
-LOCK_FILE="oraclizer/node$1/store/persistent/data/___global.lck"
+LOCK_FILE="oraclizer/node$NODE_PREFIX/store/persistent/data/___global.lck"
 
 # 파일이 존재하는지 확인하고, 있다면 삭제합니다.
 if [ -f "$LOCK_FILE" ]; then

@@ -1,8 +1,10 @@
 package io;
 
+import io.github.renegrob.infinispan.embedded.CacheService;
 import io.quarkus.runtime.StartupEvent;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
+import jakarta.inject.Inject;
 
 import java.io.InputStream;
 import java.sql.Connection;
@@ -14,6 +16,9 @@ import org.slf4j.LoggerFactory;
 
 @ApplicationScoped
 public class AppInitializer {
+
+    @Inject
+    CacheService cs;
 
     static final Logger LOG = LoggerFactory.getLogger(AppInitializer.class);
 
@@ -41,6 +46,9 @@ public class AppInitializer {
         
         String home = System.getProperty("user.home");
         LOG.info("### user.home ==>>> ",home);
+
+        cs.start();;
+        
 
         InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream("infinispan-tcp-unencrypted.xml");
         if (is == null) {
