@@ -44,18 +44,17 @@ public class AppInitializer {
         System.setProperty("infinispan.store.persistent.path", System.getenv("INFINISPAN_STORE_PERSISTENT_PATH"));
         System.setProperty("infinispan.store.temporary.path", System.getenv("INFINISPAN_STORE_TEMPORARY_PATH"));
         
-        String home = System.getProperty("user.home");
-        LOG.info("### user.home ==>>> ",home);
-
-        cs.start();;
-        
-
+        // String home = System.getProperty("user.home");
+        // LOG.info("### user.home ==>>> ",home);
         InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream("infinispan-tcp-unencrypted.xml");
         if (is == null) {
             throw new RuntimeException("File not found [ infinispan-tcp-unencrypted.xml ]");
         } else {
             LOG.info("INCLUDED!! infinispan-tcp-unencrypted.xml");    
         }
+
+        LOG.info("[START EmbeddedCacheManager SERVICE!!!]");
+        cs.start();;
         
         LOG.info("Application started. Initializing database and tables...");
         String url = "jdbc:sqlite:./database.db";

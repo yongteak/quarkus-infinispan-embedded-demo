@@ -2,7 +2,8 @@
     <jgroups transport="org.infinispan.remoting.transport.jgroups.JGroupsTransport">
         <stack name="mping">
             <TCP bind_port="7800" port_range="30"  />
-            <TCPGOSSIP initial_hosts="192.168.12.113[7800],192.168.12.113[7801],192.168.12.113[7802]" xmlns="urn:org:jgroups"/>
+            <TCPPING initial_hosts="${infinispan.initial.hosts:localhost[7800]}" xmlns="urn:org:jgroups"/>
+            <!-- <TCPGOSSIP initial_hosts="192.168.12.113[7800],192.168.12.113[7801],192.168.12.113[7802]" xmlns="urn:org:jgroups"/> -->
 
 
 <MPING break_on_coord_rsp="true"
@@ -53,6 +54,13 @@
                    stack="mping"
                    node-name="${infinispan.node.name:}">
         </transport>
+
+        <global-state enabled="true">
+            <persistent-location path="${infinispan.store.persistent.path:data}"/>
+            <temporary-location path="${infinispan.store.temporary.path:data}"/>
+            <overlay-configuration-storage />
+        </global-state>
+
         <distributed-cache-configuration name="myDistributedCacheTemplate"
                                          mode="SYNC"
                                          statistics="true"
@@ -64,6 +72,15 @@
             </encoding>
         </distributed-cache-configuration>
         <distributed-cache name="myDefaultCache" configuration="myDistributedCacheTemplate">
+        <transaction mode="NON_XA"/>
+            <persistence>
+                <file-store path="${infinispan.store.persistence.path:data}"/>
+            </persistence>
+            <!--
+                timeout: 상태 전송 과정이 완료되기를 기다리는 최대 시간(밀리초 단위)입니다.
+                chunk-size: 한 번에 전송되는 데이터의 최대 크기(바이트 단위)입니다.
+            -->
+            <state-transfer timeout="60000" chunk-size="1000"/>
         </distributed-cache>
     </cache-container>
 </infinispan>
