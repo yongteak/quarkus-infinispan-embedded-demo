@@ -2,8 +2,12 @@
     <jgroups transport="org.infinispan.remoting.transport.jgroups.JGroupsTransport">
         <stack name="mping">
             <TCP bind_addr="${infinispan.bind_addr}" bind_port="7800" port_range="30" />
-            <TCPPING initial_hosts="${infinispan.initial.hosts:localhost[7800]}" xmlns="urn:org:jgroups"/>
-            <TCPGOSSIP async_discovery="true" initial_hosts="${infinispan.gossip.router.hosts:localhost[12001]}" xmlns="urn:org:jgroups"/>
+            <!-- <TCPPING initial_hosts="${infinispan.initial.hosts:localhost[7800]}" xmlns="urn:org:jgroups"/>
+            <TCPGOSSIP async_discovery="true" initial_hosts="${infinispan.gossip.router.hosts:localhost[12001]}" xmlns="urn:org:jgroups"/> -->
+
+
+            <TCPGOSSIP initial_hosts="${infinispan.initial.hosts:localhost[7800]}" xmlns="urn:org:jgroups"/>
+            <TCPPING async_discovery="true" initial_hosts="${infinispan.gossip.router.hosts:localhost[12001]}" xmlns="urn:org:jgroups"/>
 
             <!-- <TCPPING async_discovery="true"
              initial_hosts="${infinispan.gossip.router.hosts:localhost[12001]}"
