@@ -2,6 +2,9 @@
 
 ./gradlew clean quarkusBuild -Dquarkus.container-image.group=renegrob -Dquarkus.container-image.build=true -Dquarkus.container-image.labels.SHOULD_STOP=true
 
+
+./gradlew clean package -Pnative -Dquarkus.native.container-build=true
+
 BACK_PID=$!
 wait $BACK_PID
 
