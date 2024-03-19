@@ -1,8 +1,9 @@
 <infinispan>
     <jgroups transport="org.infinispan.remoting.transport.jgroups.JGroupsTransport">
         <stack name="mping">
-            <TCP bind_port="7800" port_range="30"  />
+            <TCP bind_port="7800" port_range="30" />
             <TCPPING initial_hosts="${infinispan.initial.hosts:localhost[7800]}" xmlns="urn:org:jgroups"/>
+            <!-- <TCPGOSSIP timeout="3000"initial_hosts="${infinispan.initial.hosts:localhost[7800]}" num_initial_members="3" /> -->
             <!-- <TCPGOSSIP initial_hosts="192.168.12.113[7800],192.168.12.113[7801],192.168.12.113[7802]" xmlns="urn:org:jgroups"/> -->
 
 

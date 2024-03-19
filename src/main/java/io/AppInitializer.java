@@ -29,15 +29,14 @@ public class AppInitializer {
         String infinispanStorePersistencePath = System.getenv("INFINISPAN_STORE_PERSISTENCE_PATH");
         String infinispanStorePersistentPath = System.getenv("INFINISPAN_STORE_PERSISTENT_PATH");
         String infinispanStoreTemporaryPath = System.getenv("INFINISPAN_STORE_TEMPORARY_PATH");
+        String infinispanInitialHosts = System.getenv("INFINISPAN_INITIAL_HOSTS");
 
-        // System.out.println("ORACLIZER_HTTP_PORT: " + oraclizerHttpPort);
-        // System.out.println("ORACLIZER_API_PORT: " + oraclizerApiPort);
-        // System.out.println("INFINISPAN_CLUSTER_NAME: " + infinispanClusterName);
-        // System.out.println("INFINISPAN_NODE_NAME: " + infinispanNodeName);
+        
         System.out.println("INFINISPAN_STORE_PERSISTENCE_PATH: " + infinispanStorePersistencePath);
         System.out.println("INFINISPAN_STORE_PERSISTENT_PATH: " + infinispanStorePersistentPath);
         System.out.println("INFINISPAN_STORE_TEMPORARY_PATH: " + infinispanStoreTemporaryPath);
-
+        System.out.println("INFINISPAN_INITIAL_HOSTS: " + infinispanInitialHosts);
+        
         System.setProperty("infinispan.cluster.name", System.getenv("INFINISPAN_CLUSTER_NAME"));
         System.setProperty("infinispan.node.name", System.getenv("INFINISPAN_NODE_NAME"));
         System.setProperty("infinispan.store.persistence.path", System.getenv("INFINISPAN_STORE_PERSISTENCE_PATH"));
@@ -51,6 +50,14 @@ public class AppInitializer {
             throw new RuntimeException("File not found [ infinispan-tcp-unencrypted.xml ]");
         } else {
             LOG.info("INCLUDED!! infinispan-tcp-unencrypted.xml");    
+        }
+
+        if (infinispanInitialHosts == null) {
+            System.setProperty("infinispan.initial.hosts", "localhost[7800]");
+            System.out.println(">>> infinispan.initial.hosts: " + "localhost[7800]");
+        } else {
+            System.setProperty("infinispan.initial.hosts", infinispanInitialHosts);
+            System.out.println(">>>? infinispan.initial.hosts: exist!! > " + infinispanInitialHosts);
         }
 
         LOG.info("[START EmbeddedCacheManager SERVICE!!!]");
