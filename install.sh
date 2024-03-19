@@ -4,7 +4,7 @@
 sudo apt update
 
 # 기본 빌드 도구 설치
-sudo apt install -y build-essential curl git maven
+sudo apt install -y build-essential curl git maven zlib1g-dev
 
 # GraalVM 설치
 sudo mkdir -p /usr/local/graalvm
