@@ -31,6 +31,8 @@ public class AppInitializer {
         String infinispanStoreTemporaryPath = System.getenv("INFINISPAN_STORE_TEMPORARY_PATH");
         String infinispanBindAddr = System.getenv("INFINISPAN_BIND_ADDR");
         String infinispanInitialHosts = System.getenv("INFINISPAN_INITIAL_HOSTS");
+        String infinispanGossipRouterHosts = System.getenv("INFINISPAN_GOSSIP_ROUTER_HOSTS");
+        // infinispan.gossip.router.hosts
 
         
         System.out.println("INFINISPAN_STORE_PERSISTENCE_PATH: " + infinispanStorePersistencePath);
@@ -38,7 +40,9 @@ public class AppInitializer {
         System.out.println("INFINISPAN_STORE_TEMPORARY_PATH: " + infinispanStoreTemporaryPath);
         System.out.println("INFINISPAN_BIND_ADDR: " + infinispanBindAddr);
         System.out.println("INFINISPAN_INITIAL_HOSTS: " + infinispanInitialHosts);
+        System.out.println("INFINISPAN_GOSSIP_ROUTER_HOSTS: " + infinispanGossipRouterHosts);
         
+        System.setProperty("infinispan.gossip.router.hosts", System.getenv("INFINISPAN_GOSSIP_ROUTER_HOSTS"));
         System.setProperty("infinispan.bind_addr", System.getenv("INFINISPAN_BIND_ADDR"));
         System.setProperty("infinispan.cluster.name", System.getenv("INFINISPAN_CLUSTER_NAME"));
         System.setProperty("infinispan.node.name", System.getenv("INFINISPAN_NODE_NAME"));

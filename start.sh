@@ -3,6 +3,7 @@
 # Initialize default values
 NODE_PREFIX=0
 INFINISPAN_BIND_ADDR=127.0.0.1
+INFINISPAN_GOSSIP_ROUTER_HOSTS="localhost:12001"
 
 # Parse command line arguments
 for arg in "$@"
@@ -19,6 +20,9 @@ do
         ;;
         --bind-address=*)
         INFINISPAN_BIND_ADDR="${arg#*=}"
+        ;;
+        --gossip-hosts=*)
+        INFINISPAN_GOSSIP_ROUTER_HOSTS="${arg#*=}"
         ;;
         *)
         # Unknown option
@@ -46,6 +50,7 @@ export INFINISPAN_STORE_TEMPORARY_PATH
 export INFINISPAN_BIND_PORT
 export INFINISPAN_INITIAL_HOSTS
 export INFINISPAN_BIND_ADDR
+export INFINISPAN_GOSSIP_ROUTER_HOSTS
 
 # Echo the settings for verification
 echo "NODE_PREFIX 설정: $NODE_PREFIX"
@@ -56,6 +61,7 @@ echo "ORACLIZER_API_PORT 설정: $ORACLIZER_API_PORT"
 echo "INFINISPAN_CLUSTER_NAME 설정: $INFINISPAN_CLUSTER_NAME"
 echo "INFINISPAN_NODE_NAME 설정: $INFINISPAN_NODE_NAME"
 echo "INFINISPAN_BIND_ADDR 설정: $INFINISPAN_BIND_ADDR"
+echo "INFINISPAN_GOSSIP_ROUTER_HOSTS 설정: $INFINISPAN_GOSSIP_ROUTER_HOSTS"
 
 # ___global.lck 파일의 경로를 지정합니다.
 LOCK_FILE="oraclizer/node$NODE_PREFIX/store/persistent/data/___global.lck"
