@@ -29,3 +29,4 @@ sudo dpkg -i bottom_0.9.6_amd64.deb
 # Quarkus CLI 설치 (jbang)
 curl -Ls https://sh.jbang.dev | bash -s - trust add https://repo1.maven.org/maven2/io/quarkus/quarkus-cli/
 curl -Ls https://sh.jbang.dev | bash -s - app install --fresh --force quarkus@quarkusio
+source ~/.bashrc
