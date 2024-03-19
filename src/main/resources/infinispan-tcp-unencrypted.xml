@@ -7,9 +7,7 @@
 
             <TCPPING async_discovery="true"
              initial_hosts="${infinispan.gossip.router.hosts:localhost[12001]}"
-             port_range="0"
-             timeout="3000"
-             num_initial_members="3"/>
+             port_range="0"/>
 
             <!-- <TCPGOSSIP timeout="3000"initial_hosts="${infinispan.initial.hosts:localhost[7800]}" num_initial_members="3" /> -->
             <!-- <TCPGOSSIP initial_hosts="192.168.12.113[7800],192.168.12.113[7801],192.168.12.113[7802]" xmlns="urn:org:jgroups"/> -->
