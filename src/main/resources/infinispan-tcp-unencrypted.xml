@@ -3,7 +3,7 @@
         <stack name="mping">
             <TCP bind_addr="${infinispan.bind_addr}" bind_port="7800" port_range="30" />
             <!-- <TCPPING initial_hosts="${infinispan.initial.hosts:localhost[7800]}" xmlns="urn:org:jgroups"/> -->
-            <!-- <TCPGOSSIP initial_hosts="${infinispan.gossip.router.hosts:localhost[12001]}" xmlns="urn:org:jgroups"/> -->
+            <TCPGOSSIP initial_hosts="${infinispan.gossip.router.hosts:localhost[12001]}" xmlns="urn:org:jgroups"/>
 
             <TCPPING async_discovery="true"
              initial_hosts="${infinispan.gossip.router.hosts:localhost[12001]}"
@@ -42,16 +42,16 @@
                  xmit_table_max_compaction_time="30000"
                  xmlns="urn:org:jgroups"
          />
-         <!-- <pbcast.STABLE desired_avg_gossip="2000"
+         <pbcast.STABLE desired_avg_gossip="2000"
                         max_bytes="1M"
                         xmlns="urn:org:jgroups"
          />
-         <pbcast.GMS print_local_addr="false"
+         <!-- <pbcast.GMS print_local_addr="false"
                      join_timeout="${jgroups.join_timeout:2000}"
-                     xmlns="urn:org:jgroups"/>
+                     xmlns="urn:org:jgroups"/> -->
          <UFC max_credits="4m" min_threshold="0.40" xmlns="urn:org:jgroups"/>
          <MFC max_credits="4m" min_threshold="0.40" xmlns="urn:org:jgroups"/>
-         <FRAG4 xmlns="urn:org:jgroups"/> -->
+         <FRAG4 xmlns="urn:org:jgroups"/>
 
         </stack>
     </jgroups>
