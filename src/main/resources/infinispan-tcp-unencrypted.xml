@@ -51,9 +51,9 @@
                         max_bytes="1M"
                         xmlns="urn:org:jgroups"
          />
-         <pbcast.GMS print_local_addr="false"
+         <!-- <pbcast.GMS print_local_addr="false"
                      join_timeout="${jgroups.join_timeout:2000}"
-                     xmlns="urn:org:jgroups"/>
+                     xmlns="urn:org:jgroups"/> -->
         
          <UFC max_credits="4m" min_threshold="0.40" xmlns="urn:org:jgroups"/>
          <MFC max_credits="4m" min_threshold="0.40" xmlns="urn:org:jgroups"/>
