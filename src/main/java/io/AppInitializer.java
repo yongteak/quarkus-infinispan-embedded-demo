@@ -29,14 +29,17 @@ public class AppInitializer {
         String infinispanStorePersistencePath = System.getenv("INFINISPAN_STORE_PERSISTENCE_PATH");
         String infinispanStorePersistentPath = System.getenv("INFINISPAN_STORE_PERSISTENT_PATH");
         String infinispanStoreTemporaryPath = System.getenv("INFINISPAN_STORE_TEMPORARY_PATH");
+        String infinispanBindAddr = System.getenv("INFINISPAN_BIND_ADDR");
         String infinispanInitialHosts = System.getenv("INFINISPAN_INITIAL_HOSTS");
 
         
         System.out.println("INFINISPAN_STORE_PERSISTENCE_PATH: " + infinispanStorePersistencePath);
         System.out.println("INFINISPAN_STORE_PERSISTENT_PATH: " + infinispanStorePersistentPath);
         System.out.println("INFINISPAN_STORE_TEMPORARY_PATH: " + infinispanStoreTemporaryPath);
+        System.out.println("INFINISPAN_BIND_ADDR: " + infinispanBindAddr);
         System.out.println("INFINISPAN_INITIAL_HOSTS: " + infinispanInitialHosts);
         
+        System.setProperty("infinispan.bind_addr", System.getenv("INFINISPAN_BIND_ADDR"));
         System.setProperty("infinispan.cluster.name", System.getenv("INFINISPAN_CLUSTER_NAME"));
         System.setProperty("infinispan.node.name", System.getenv("INFINISPAN_NODE_NAME"));
         System.setProperty("infinispan.store.persistence.path", System.getenv("INFINISPAN_STORE_PERSISTENCE_PATH"));

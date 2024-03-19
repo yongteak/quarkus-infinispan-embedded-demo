@@ -2,8 +2,7 @@
 
 # Initialize default values
 NODE_PREFIX=0
-# INFINISPAN_BIND_PORT
-# INFINISPAN_INITIAL_HOSTS
+INFINISPAN_BIND_ADDR=127.0.0.1
 
 # Parse command line arguments
 for arg in "$@"
@@ -17,6 +16,9 @@ do
         ;;
         --initial_hosts=*)
         INFINISPAN_INITIAL_HOSTS="${arg#*=}"
+        ;;
+        --bind-address=*)
+        INFINISPAN_BIND_ADDR="${arg#*=}"
         ;;
         *)
         # Unknown option
@@ -43,6 +45,7 @@ export INFINISPAN_STORE_PERSISTENT_PATH
 export INFINISPAN_STORE_TEMPORARY_PATH
 export INFINISPAN_BIND_PORT
 export INFINISPAN_INITIAL_HOSTS
+export INFINISPAN_BIND_ADDR
 
 # Echo the settings for verification
 echo "NODE_PREFIX 설정: $NODE_PREFIX"
@@ -52,11 +55,7 @@ echo "ORACLIZER_HTTP_PORT 설정: $ORACLIZER_HTTP_PORT"
 echo "ORACLIZER_API_PORT 설정: $ORACLIZER_API_PORT"
 echo "INFINISPAN_CLUSTER_NAME 설정: $INFINISPAN_CLUSTER_NAME"
 echo "INFINISPAN_NODE_NAME 설정: $INFINISPAN_NODE_NAME"
-
-# echo "INFINISPAN_STORE_PERSISTENCE_PATH 설정: $INFINISPAN_STORE_PERSISTENCE_PATH"
-# echo "INFINISPAN_STORE_PERSISTENT_PATH 설정: $INFINISPAN_STORE_PERSISTENT_PATH"
-# echo "INFINISPAN_STORE_TEMPORARY_PATH 설정: $INFINISPAN_STORE_TEMPORARY_PATH"
-
+echo "INFINISPAN_BIND_ADDR 설정: $INFINISPAN_BIND_ADDR"
 
 # ___global.lck 파일의 경로를 지정합니다.
 LOCK_FILE="oraclizer/node$NODE_PREFIX/store/persistent/data/___global.lck"
@@ -66,5 +65,6 @@ if [ -f "$LOCK_FILE" ]; then
     echo "___global.lck 파일을 삭제합니다."
     rm -f "$LOCK_FILE"
 fi
+
 # Run Quarkus in dev mode
 quarkus dev
