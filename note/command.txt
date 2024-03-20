@@ -3,4 +3,13 @@ wget https://gist.githubusercontent.com/yongteak/f70430eca5679c7070240bdd98173e7
 
 # 포트 체크 (osx, linux)
 sudo lsof -i TCP:12001
-sudo ss -tuln | grep :12001
+ss -tun| grep :12001
+
+# 1초마다 변경사항 확인
+watch -n 1 "ss -tun| grep :12001"
+
+watch -n 1 "sudo netstat -anvp tcp | grep 12001"
+
+
+# JGroup Router
+java -cp jgroups-4.2.27.Final.jar org.jgroups.stack.GossipRouter -port 12001
