@@ -1,0 +1,6 @@
+# 우분투에서 quarku빌드 환경 스크립트 [2024-03-20 10:26:10]
+wget https://gist.githubusercontent.com/yongteak/f70430eca5679c7070240bdd98173e7c/raw/6f31818b20d099b912e83f59d9044a57c1020108/install.sh -O - | bash
+
+# 포트 체크 (osx, linux)
+sudo lsof -i TCP:12001
+sudo ss -tuln | grep :12001
