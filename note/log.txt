@@ -1,0 +1,26 @@
+[ubuntu] 15.165.18.197 (172.31.9.99)
+[ap1] 15.165.18.197 (172.31.13.142)
+[ap2] 13.124.232.45 (172.31.11.157)
+
+
+ssh -i ~/.ssh/hk-validator-ap-1.pem ubuntu@15.165.18.197
+ssh -i ~/.ssh/hk-validator-ap-1.pem ubuntu@13.124.232.45
+
+
+# GossipRouter
+ssh -i ~/.ssh/test-os.pem root@ec2-15-165-195-113.ap-northeast-2.compute.amazonaws.com
+su ubuntu
+# screen
+java -cp jgroups-4.2.27.Final.jar org.jgroups.stack.GossipRouter -port 12001 -e "LogLevel=TRACE"
+
+
+
+# 로컬
+./start.sh --node-prefix=1  --bind-address="192.168.12.113" --gossip-hosts="15.165.195.113[12001],172.31.9.99[12001]" --initial_hosts="15.165.18.197[7800]"
+./start.sh --node-prefix=2  --bind-address="192.168.12.113" --gossip-hosts="15.165.195.113[12001],172.31.9.99[12001]" --initial_hosts="15.165.18.197[7800]"
+./start.sh --node-prefix=3  --bind-address="192.168.12.113" --gossip-hosts="15.165.195.113[12001],172.31.9.99[12001]" --initial_hosts="15.165.18.197[7800]"
+
+
+# EC2
+./start.sh --node-prefix=11 --bind-address="172.31.13.142" --gossip-hosts="15.165.195.113[12001],172.31.9.99[12001]" --initial_hosts="15.165.18.197[7800]"
+./start.sh --node-prefix=22 --bind-address="172.31.11.157" --gossip-hosts="15.165.195.113[12001],172.31.9.99[12001]" --initial_hosts="15.165.18.197[7800]"

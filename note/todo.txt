@@ -2,3 +2,4 @@
 [] TCP환경에서 seed노드 구축, 연결성 테스트 [2024-03-18 18:31:16]
 [] xsite 구축 (https://infinispan.org/docs/stable/titles/xsite/xsite.html) [2024-03-19 11:19:41]
 [] distributed-cache, replicated-cache 템플릿 분류 및 모델링
+[] ec2간 내부 ip로 연결 테스트 (당연히 되겠징..)

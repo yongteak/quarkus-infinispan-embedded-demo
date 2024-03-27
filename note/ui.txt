@@ -1,0 +1,3 @@
+SHADCN UI THEME GENERATOR
+https://gradient.page/tools/shadcn-ui-theme-generator
+https://devhunt.org/tools/tailwind-css

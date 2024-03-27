@@ -7,9 +7,15 @@ ss -tun| grep :12001
 
 # 1초마다 변경사항 확인
 watch -n 1 "ss -tun| grep :12001"
-
 watch -n 1 "sudo netstat -anvp tcp | grep 12001"
 
+# nc 포트 체크
+nc -v ec2-3-38-112-179.ap-northeast-2.compute.amazonaws.com 12003
 
 # JGroup Router
 java -cp jgroups-4.2.27.Final.jar org.jgroups.stack.GossipRouter -port 12001
+
+
+
+# git
+git clone https://github.com/yongteak/quarkus-infinispan-embedded-demo

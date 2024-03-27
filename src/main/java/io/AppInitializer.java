@@ -7,10 +7,15 @@ import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
 
 import java.io.InputStream;
+import java.net.Inet4Address;
+import java.net.InetAddress;
+import java.net.NetworkInterface;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.util.Enumeration;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
@@ -29,19 +34,38 @@ public class AppInitializer {
         String infinispanStorePersistencePath = System.getenv("INFINISPAN_STORE_PERSISTENCE_PATH");
         String infinispanStorePersistentPath = System.getenv("INFINISPAN_STORE_PERSISTENT_PATH");
         String infinispanStoreTemporaryPath = System.getenv("INFINISPAN_STORE_TEMPORARY_PATH");
+        // INFINISPAN_BIND_ADDR값이 없는경우 내 IP 주소 검색후 적용
+        // [2024-03-26 17:20:58]
         String infinispanBindAddr = System.getenv("INFINISPAN_BIND_ADDR");
+        if (infinispanBindAddr == null || infinispanBindAddr.isEmpty()) {
+            try {
+                NetworkInterface networkInterface = NetworkInterface.getByName("en0");
+                Enumeration<InetAddress> inetAddresses = networkInterface.getInetAddresses();
+                while (inetAddresses.hasMoreElements()) {
+                    InetAddress inetAddress = inetAddresses.nextElement();
+                    if (inetAddress instanceof Inet4Address) {
+                        infinispanBindAddr = inetAddress.getHostAddress();
+                        System.out.println("Detected local IP address for INFINISPAN_BIND_ADDR: " + infinispanBindAddr);
+                        break;
+                    }
+                }
+            } catch (Exception e) {
+                LOG.error("Failed to detect local IP address", e);
+                throw new RuntimeException("Failed to detect local IP address", e);
+            }
+        }
+
         String infinispanInitialHosts = System.getenv("INFINISPAN_INITIAL_HOSTS");
         String infinispanGossipRouterHosts = System.getenv("INFINISPAN_GOSSIP_ROUTER_HOSTS");
         // infinispan.gossip.router.hosts
 
-        
         System.out.println("INFINISPAN_STORE_PERSISTENCE_PATH: " + infinispanStorePersistencePath);
         System.out.println("INFINISPAN_STORE_PERSISTENT_PATH: " + infinispanStorePersistentPath);
         System.out.println("INFINISPAN_STORE_TEMPORARY_PATH: " + infinispanStoreTemporaryPath);
         System.out.println("INFINISPAN_BIND_ADDR: " + infinispanBindAddr);
         System.out.println("INFINISPAN_INITIAL_HOSTS: " + infinispanInitialHosts);
         System.out.println("INFINISPAN_GOSSIP_ROUTER_HOSTS: " + infinispanGossipRouterHosts);
-        
+
         System.setProperty("infinispan.gossip.router.hosts", System.getenv("INFINISPAN_GOSSIP_ROUTER_HOSTS"));
         System.setProperty("infinispan.bind_addr", System.getenv("INFINISPAN_BIND_ADDR"));
         System.setProperty("infinispan.cluster.name", System.getenv("INFINISPAN_CLUSTER_NAME"));
@@ -49,14 +73,15 @@ public class AppInitializer {
         System.setProperty("infinispan.store.persistence.path", System.getenv("INFINISPAN_STORE_PERSISTENCE_PATH"));
         System.setProperty("infinispan.store.persistent.path", System.getenv("INFINISPAN_STORE_PERSISTENT_PATH"));
         System.setProperty("infinispan.store.temporary.path", System.getenv("INFINISPAN_STORE_TEMPORARY_PATH"));
-        
+
         // String home = System.getProperty("user.home");
         // LOG.info("### user.home ==>>> ",home);
-        InputStream is = Thread.currentThread().getContextClassLoader().getResourceAsStream("infinispan-tcp-unencrypted.xml");
+        InputStream is = Thread.currentThread().getContextClassLoader()
+                .getResourceAsStream("infinispan-tcp-unencrypted.xml");
         if (is == null) {
             throw new RuntimeException("File not found [ infinispan-tcp-unencrypted.xml ]");
         } else {
-            LOG.info("INCLUDED!! infinispan-tcp-unencrypted.xml");    
+            LOG.info("INCLUDED!! infinispan-tcp-unencrypted.xml");
         }
 
         if (infinispanInitialHosts == null) {
@@ -68,8 +93,9 @@ public class AppInitializer {
         }
 
         LOG.info("[START EmbeddedCacheManager SERVICE!!!]");
-        cs.start();;
-        
+        cs.start();
+        ;
+
         LOG.info("Application started. Initializing database and tables...");
         String url = "jdbc:sqlite:./database.db";
         try (Connection conn = DriverManager.getConnection(url)) {

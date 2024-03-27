@@ -30,3 +30,6 @@
     quarkus build --native
     native-image 패키지 설치 필요
     https://pomfret.uk/posts/install-graalvm-and-native-image-on-an-m1-mac-java11/
+
+
+./starth.sh --node-prefix=2  --bind-address="192.168.12.113" --gossip-hosts="15.165.195.113[12001]"

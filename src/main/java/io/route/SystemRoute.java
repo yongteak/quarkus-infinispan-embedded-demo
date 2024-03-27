@@ -6,7 +6,6 @@ import org.apache.camel.model.dataformat.JsonLibrary;
 import org.infinispan.configuration.global.GlobalConfiguration;
 import org.infinispan.configuration.global.TransportConfiguration;
 import org.infinispan.remoting.transport.jgroups.JGroupsTransport;
-import org.jgroups.JChannel;
 import org.jgroups.protocols.TP;
 import org.jgroups.stack.ProtocolStack;
 import org.slf4j.Logger;
@@ -19,7 +18,6 @@ import jakarta.inject.Inject;
 import jakarta.ws.rs.core.MediaType;
 
 import java.util.Map;
-import java.util.stream.Collectors;
 
 @ApplicationScoped
 public class SystemRoute extends RouteBuilder {

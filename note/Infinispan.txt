@@ -1,3 +1,7 @@
+https://infinispan.org/blog/2024/03/12/infinispan-15
+
+
+
 ### JGroups와 Infinispan클러스터링 구성간 충돌 위험
 Infinispan과 JGroups는 밀접하게 연관되어 있습니다. Infinispan은 클러스터링과 분산 캐싱 기능을 제공하는 데이터 그리드 플랫폼이며, JGroups는 Java 기반의 메시징 라이브러리로, 멀티캐스트 또는 유니캐스트를 통해 Java 객체를 클러스터 내의 노드 간에 전송할 수 있게 해줍니다. 실제로, Infinispan은 클러스터 통신을 위해 내부적으로 JGroups를 사용합니다.
 JGroups 라이브러리와 설정 추가 시 고려사항:

@@ -1,0 +1,1 @@
+https://infinispan.org/docs/stable/titles/embedding/embedding.html
