@@ -1,6 +1,11 @@
 # tcp port test
 nc -v ec2-3-38-112-179.ap-northeast-2.compute.amazonaws.com 7800
 
+nc -v ec2-3-38-112-179.ap-northeast-2.compute.amazonaws.com 7575
+
+nc -v oraclizer.munawiki.dev 7575
+
+
 
 ./start.sh --node-prefix=1 --initial_hosts="192.168.12.113[7800]"
 

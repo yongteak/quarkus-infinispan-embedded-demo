@@ -1,3 +1,5 @@
+[2024-04-02 11:54:55]
+    - DamlInitializer.java : extends Endpoint요 구문은 quarkus, gpt에서 제대로 안알려줌, gpt 3.5에서 알려줌 ㅠㅠ (4일걸림)
 [2024-03-20 10:56:41]
     - GossipRouter를 사용하여 로컬 노드와 AWS노드간 gossip 연결 완료 (각 2대씩 IP 4개 연계 확인)
     - 같은 네트워크에서만 노드가 연결되고, 로컬과 AWS노드끼지 연결안됨
