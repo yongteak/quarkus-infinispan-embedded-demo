@@ -40,7 +40,7 @@ public class DamlInitializer extends Endpoint {
 
     static final Logger LOG = LoggerFactory.getLogger(DamlInitializer.class);
     private static final String URI = "ws://ec2-15-165-195-113.ap-northeast-2.compute.amazonaws.com:7575/v1/stream/query";
-    private static final String PROTOCOL = "jwt.token.eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJodHRwczovL2RhbWwuY29tL2xlZGdlci1hcGkiOnsibGVkZ2VySWQiOiJzYW5kYm94IiwiYXBwbGljYXRpb25JZCI6IndhbGxldC1yZWZhcHAiLCJhY3RBcyI6WyJhZG1pbiJdfX0.51b2lpNUsQXBr08-GqUEx_X7P1OuG31ACmN3t5TyoRQ,daml.ws.auth";
+    private static final String PROTOCOL = "jwt.token.eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJzdWIiOiJhZG1pbiIsInNjb3BlIjoiZGFtbF9sZWRnZXJfYXBpIn0.HtipPGij-drbM0xLsfg5jeIMDhq1zejGsxWeq-FxkKo,daml.ws.auth";
 
     // / WebSocket 연결 상태를 확인하는 메소드
     public boolean isConnectionOpen() {

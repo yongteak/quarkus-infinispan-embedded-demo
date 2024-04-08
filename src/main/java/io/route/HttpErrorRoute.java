@@ -39,18 +39,18 @@ public class HttpErrorRoute extends RouteBuilder {
 
         // [2021-08-03 15:14:12]
         // todo 200오류 처리
-        from("direct:bad-jsonvalidator-200").routeId("bad-jsonvalidator-200")
-            .log(LoggingLevel.ERROR, logName,
-                    "[JsonValidationException1]>>> ${routeId} - Caught exception after JSON Schema Validation: ${exception.stacktrace}")
-            .id("log-validateErc20JSON-exception")
-            .setHeader(Exchange.HTTP_RESPONSE_CODE, constant(Response.Status.BAD_REQUEST.getStatusCode()))
-            .setProperty(Exchange.HTTP_RESPONSE_TEXT, constant(Response.Status.BAD_REQUEST.getReasonPhrase()))
-            .setBody().method("validationResultHelper", "generateKOValidationResult(${exception.message})")
-            .id("set-KO-validationResult").marshal().json(JsonLibrary.Jackson, true)
-            .id("marshal-KO-validationResult-to-json")
-            .log(LoggingLevel.ERROR, logName,
-                    "[JsonValidationException1]>>> ${routeId} - validateERC20 response: headers:[${headers}] - body:[${body}]")
-            .id("log-validateErc20JSON-KO-response");
+        // from("direct:bad-jsonvalidator-200").routeId("bad-jsonvalidator-200")
+        //     .log(LoggingLevel.ERROR, logName,
+        //             "[JsonValidationException1]>>> ${routeId} - Caught exception after JSON Schema Validation: ${exception.stacktrace}")
+        //     .id("log-validateErc20JSON-exception")
+        //     .setHeader(Exchange.HTTP_RESPONSE_CODE, constant(Response.Status.BAD_REQUEST.getStatusCode()))
+        //     .setProperty(Exchange.HTTP_RESPONSE_TEXT, constant(Response.Status.BAD_REQUEST.getReasonPhrase()))
+        //     .setBody().method("validationResultHelper", "generateKOValidationResult(${exception.message})")
+        //     .id("set-KO-validationResult").marshal().json(JsonLibrary.Jackson, true)
+        //     .id("marshal-KO-validationResult-to-json")
+        //     .log(LoggingLevel.ERROR, logName,
+        //             "[JsonValidationException1]>>> ${routeId} - validateERC20 response: headers:[${headers}] - body:[${body}]")
+        //     .id("log-validateErc20JSON-KO-response");
 
         from("direct:response-200").routeId("response-200-http-code-route")
                 // .marshal().json(JsonLibrary.Jackson).convertBodyTo(String.class)
