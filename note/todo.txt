@@ -3,3 +3,5 @@
 [] xsite 구축 (https://infinispan.org/docs/stable/titles/xsite/xsite.html) [2024-03-19 11:19:41]
 [] distributed-cache, replicated-cache 템플릿 분류 및 모델링
 [] ec2간 내부 ip로 연결 테스트 (당연히 되겠징..)
+[]  ISPN000671: RAFT protocol is not available. Reason: transport.raft-members is not set. master정보 찾기 [2024-04-15 11:46:27]
+[2024-04-15 15:40:28] daml ws 연동, session.addMessageHandler으로 구현, @OnMessage 이슈는 알수 없음 ㅜㅜ [2024-04-15 15:41:04]

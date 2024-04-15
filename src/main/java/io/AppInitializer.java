@@ -6,14 +6,19 @@ import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
 
+import java.io.File;
+import java.io.IOException;
 import java.io.InputStream;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.sql.Connection;
 import java.sql.DriverManager;
 import java.sql.ResultSet;
 import java.sql.Statement;
+import java.util.Comparator;
 import java.util.Enumeration;
 
 import org.slf4j.Logger;
@@ -26,6 +31,8 @@ public class AppInitializer {
     CacheService cs;
 
     static final Logger LOG = LoggerFactory.getLogger(AppInitializer.class);
+
+    private static final String TEMP_STATE_FILE = System.getProperty("java.io.tmpdir") + "/appstate.tmp";
 
     void onStart(@Observes StartupEvent ev) {
 
@@ -56,15 +63,15 @@ public class AppInitializer {
         }
 
         String infinispanInitialHosts = System.getenv("INFINISPAN_INITIAL_HOSTS");
-        String infinispanGossipRouterHosts = System.getenv("INFINISPAN_GOSSIP_ROUTER_HOSTS");
+        // String infinispanGossipRouterHosts = System.getenv("INFINISPAN_GOSSIP_ROUTER_HOSTS");
         // infinispan.gossip.router.hosts
 
-        System.out.println("INFINISPAN_STORE_PERSISTENCE_PATH: " + infinispanStorePersistencePath);
-        System.out.println("INFINISPAN_STORE_PERSISTENT_PATH: " + infinispanStorePersistentPath);
-        System.out.println("INFINISPAN_STORE_TEMPORARY_PATH: " + infinispanStoreTemporaryPath);
-        System.out.println("INFINISPAN_BIND_ADDR: " + infinispanBindAddr);
-        System.out.println("INFINISPAN_INITIAL_HOSTS: " + infinispanInitialHosts);
-        System.out.println("INFINISPAN_GOSSIP_ROUTER_HOSTS: " + infinispanGossipRouterHosts);
+        // System.out.println("INFINISPAN_STORE_PERSISTENCE_PATH: " + infinispanStorePersistencePath);
+        // System.out.println("INFINISPAN_STORE_PERSISTENT_PATH: " + infinispanStorePersistentPath);
+        // System.out.println("INFINISPAN_STORE_TEMPORARY_PATH: " + infinispanStoreTemporaryPath);
+        // System.out.println("INFINISPAN_BIND_ADDR: " + infinispanBindAddr);
+        // System.out.println("INFINISPAN_INITIAL_HOSTS: " + infinispanInitialHosts);
+        // System.out.println("INFINISPAN_GOSSIP_ROUTER_HOSTS: " + infinispanGossipRouterHosts);
 
         System.setProperty("infinispan.gossip.router.hosts", System.getenv("INFINISPAN_GOSSIP_ROUTER_HOSTS"));
         System.setProperty("infinispan.bind_addr", System.getenv("INFINISPAN_BIND_ADDR"));
@@ -74,8 +81,18 @@ public class AppInitializer {
         System.setProperty("infinispan.store.persistent.path", System.getenv("INFINISPAN_STORE_PERSISTENT_PATH"));
         System.setProperty("infinispan.store.temporary.path", System.getenv("INFINISPAN_STORE_TEMPORARY_PATH"));
 
-        // String home = System.getProperty("user.home");
-        // LOG.info("### user.home ==>>> ",home);
+
+        System.out.println("#infinispan.store.persistence.path: " + System.getenv("INFINISPAN_STORE_PERSISTENCE_PATH"));
+        System.out.println("#infinispan.store.persistent.path: " + System.getenv("INFINISPAN_STORE_PERSISTENT_PATH"));
+        System.out.println("#infinispan.store.temporary.path: " + System.getenv("INFINISPAN_STORE_TEMPORARY_PATH"));
+        System.out.println("#infinispan.initial.hosts: " + System.getenv("INFINISPAN_INITIAL_HOSTS"));
+        System.out.println("#infinispan.gossip.router.hosts: " + System.getenv("INFINISPAN_GOSSIP_ROUTER_HOSTS"));
+        System.out.println("#infinispan.bind_addr: " + System.getenv("INFINISPAN_BIND_ADDR"));
+        System.out.println("#infinispan.cluster.name: " + System.getenv("INFINISPAN_CLUSTER_NAME"));
+        System.out.println("#infinispan.node.name: " + System.getenv("INFINISPAN_NODE_NAME"));
+
+        String home = System.getProperty("user.home");
+        LOG.info("### user.home ==>>> ",home);
         InputStream is = Thread.currentThread().getContextClassLoader()
                 .getResourceAsStream("infinispan-tcp-unencrypted.xml");
         if (is == null) {
@@ -90,6 +107,46 @@ public class AppInitializer {
         } else {
             System.setProperty("infinispan.initial.hosts", infinispanInitialHosts);
             System.out.println(">>>? infinispan.initial.hosts: exist!! > " + infinispanInitialHosts);
+        }
+
+        File tempFile = new File(TEMP_STATE_FILE);
+        // 재시작 로직
+        if (tempFile.exists()) {
+            System.out.println("This is restart..");
+
+            String oraclizerFolderPath = "./oraclizer/" + System.getenv("INFINISPAN_NODE_NAME");
+            File oraclizerFolder = new File(oraclizerFolderPath);
+            
+            if (oraclizerFolder.exists() && oraclizerFolder.isDirectory()) {
+                // boolean deleted = oraclizerFolder.delete();
+                // if (deleted) {
+                //     LOG.info("폴더가 성공적으로 삭제되었습니다: " + oraclizerFolderPath);
+                // } else {
+                //     LOG.warn("폴더 삭제에 실패했습니다: " + oraclizerFolderPath);
+                // }
+                try {
+                    Files.walk(oraclizerFolder.toPath())
+                        .sorted(Comparator.reverseOrder())
+                        .map(Path::toFile)
+                        .forEach(File::delete);
+                    LOG.info("폴더 및 하위 파일이 성공적으로 삭제되었습니다: " + oraclizerFolderPath);
+                } catch (IOException e) {
+                    LOG.error("폴더 및 하위 파일 삭제 중 오류 발생: " + oraclizerFolderPath, e);
+                }
+            } else {
+                LOG.warn("폴더가 존재하지 않습니다: " + oraclizerFolderPath);
+            }
+
+        } else {
+            // 처음 시작 로직
+            System.out.println("This is the first start.");
+            try {
+                tempFile.createNewFile();
+                tempFile.deleteOnExit(); // 애플리케이션 종료 시 파일 삭제
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
         }
 
         LOG.info("[START EmbeddedCacheManager SERVICE!!!]");

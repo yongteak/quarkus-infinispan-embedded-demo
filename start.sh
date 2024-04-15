@@ -63,14 +63,21 @@ echo "INFINISPAN_NODE_NAME 설정: $INFINISPAN_NODE_NAME"
 echo "INFINISPAN_BIND_ADDR 설정: $INFINISPAN_BIND_ADDR"
 echo "INFINISPAN_GOSSIP_ROUTER_HOSTS 설정: $INFINISPAN_GOSSIP_ROUTER_HOSTS"
 
-# ___global.lck 파일의 경로를 지정합니다.
-LOCK_FILE="oraclizer/node$NODE_PREFIX/store/persistent/data/___global.lck"
-
-# 파일이 존재하는지 확인하고, 있다면 삭제합니다.
-if [ -f "$LOCK_FILE" ]; then
-    echo "___global.lck 파일을 삭제합니다."
-    rm -f "$LOCK_FILE"
+# oraclizer 폴더가 존재하는지 확인하고, 있다면 삭제합니다.
+ORA_FOLDER="oraclizer"
+if [ -d "$ORA_FOLDER" ]; then
+    echo "oraclizer 폴더를 삭제합니다."
+    rm -rf "$ORA_FOLDER"
 fi
+
+# ___global.lck 파일의 경로를 지정합니다.
+# LOCK_FILE="oraclizer/node$NODE_PREFIX/store/persistent/data/___global.lck"
+
+# # 파일이 존재하는지 확인하고, 있다면 삭제합니다.
+# if [ -f "$LOCK_FILE" ]; then
+#     echo "___global.lck 파일을 삭제합니다."
+#     rm -f "$LOCK_FILE"
+# fi
 
 # Run Quarkus in dev mode
 quarkus dev
