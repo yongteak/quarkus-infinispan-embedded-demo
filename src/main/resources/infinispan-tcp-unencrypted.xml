@@ -17,7 +17,7 @@
         xmlns="urn:org:jgroups"/> -->
         </stack>
     </jgroups>
-    <cache-container default-cache="myDefaultCache">
+    <cache-container default-cache="defaultCache">
     
         <transport cluster="${infinispan.cluster.name:local}"
                    stack="mping"
@@ -30,7 +30,7 @@
             <overlay-configuration-storage />
         </global-state>
 
-        <distributed-cache-configuration name="myDistributedCacheTemplate"
+        <distributed-cache-configuration name="distributedCacheTemplate"
                                          mode="SYNC"
                                          statistics="true"
                                          owners="1">
@@ -40,7 +40,8 @@
                 <value media-type="application/x-protostream"/>
             </encoding>
         </distributed-cache-configuration>
-        <distributed-cache name="myDefaultCache" configuration="myDistributedCacheTemplate">
+
+        <distributed-cache name="defaultCache" configuration="distributedCacheTemplate">
         <transaction mode="NON_XA"/>
             <persistence>
                 <file-store path="${infinispan.store.persistence.path:data}"/>

@@ -1,4 +1,4 @@
-package io;
+package io.app;
 
 import java.io.IOException;
 import java.util.Arrays;
@@ -34,14 +34,14 @@ import jakarta.websocket.WebSocketContainer;
 
 @ClientEndpoint
 @ApplicationScoped
-public class DamlInitializer extends Endpoint {
+public class DamlApp extends Endpoint {
 
     private Session session;
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private WebSocketContainer container;
     private ClientEndpointConfig config;
 
-    static final Logger LOG = LoggerFactory.getLogger(DamlInitializer.class);
+    static final Logger LOG = LoggerFactory.getLogger(DamlApp.class);
     @ConfigProperty(name = "daml.ws.uri")
     private String URI;
 
@@ -96,7 +96,7 @@ public class DamlInitializer extends Endpoint {
 
     // 서버에 연결하는 메소드
     private void connectToServer() throws Exception {
-        this.container.connectToServer(DamlInitializer.class, config, java.net.URI.create(URI));
+        this.container.connectToServer(DamlApp.class, config, java.net.URI.create(URI));
         // LOG.info("서버에 연결을 시도합니다.");
     }
 

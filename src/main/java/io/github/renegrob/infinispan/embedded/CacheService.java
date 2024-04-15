@@ -16,11 +16,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 
-/**
- * This startup bean starts the cache service
- */
-// @Startup
-// @Singleton
 @ApplicationScoped
 public class CacheService {
 
@@ -44,21 +39,6 @@ public class CacheService {
             return true;
         });
     }
-
-    // void onStart(@Observes StartupEvent ev) {
-    //     if (this.emc != null) {
-    //         System.out.println("###### >>>> Infinispan 222");
-    //         emc.start();
-    //     } else {
-    //         System.out.println("###### >>>> Infinispan 333");
-    //     }
-    // }
-
-    // @PostConstruct
-    // public void initialize() throws Exception {
-    //     System.out.println("###### >>>> Infinispan 클라이언트가 시작됩니다.");
-    //     emc.start();
-    // }
     
     public void start() {
         emc.start();
