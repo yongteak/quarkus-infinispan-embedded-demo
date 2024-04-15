@@ -2,16 +2,10 @@ package io.route;
 
 import org.apache.camel.builder.RouteBuilder;
 import org.apache.camel.component.jackson.JacksonDataFormat;
-import org.apache.camel.model.dataformat.JsonLibrary;
-import org.apache.camel.model.rest.RestBindingMode;
-// import org.hibernate.mapping.Map;
-import java.util.Map;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import io.github.renegrob.infinispan.embedded.CacheService;
-import io.github.renegrob.infinispan.embedded.MyCacheEntry;
-import io.github.renegrob.infinispan.embedded.MyCacheEntryProducer;
 import io.model.cache.MyEntry;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.inject.Inject;

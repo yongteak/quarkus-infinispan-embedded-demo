@@ -3,5 +3,25 @@
 [] xsite 구축 (https://infinispan.org/docs/stable/titles/xsite/xsite.html) [2024-03-19 11:19:41]
 [] distributed-cache, replicated-cache 템플릿 분류 및 모델링
 [] ec2간 내부 ip로 연결 테스트 (당연히 되겠징..)
-[]  ISPN000671: RAFT protocol is not available. Reason: transport.raft-members is not set. master정보 찾기 [2024-04-15 11:46:27]
+[] ISPN000671: RAFT protocol is not available. Reason: transport.raft-members is not set. master정보 찾기 [2024-04-15 11:46:27]
 [2024-04-15 15:40:28] daml ws 연동, session.addMessageHandler으로 구현, @OnMessage 이슈는 알수 없음 ㅜㅜ [2024-04-15 15:41:04]
+[] DAML데이터 모델링 [2024-04-15 16:53:01]
+    - [] MASTER 모든 데이터 저장
+    - [] ContractID
+    - [] 거래(Trade,Swap,AirDrop,Accept) 수락 데이터
+    - [] Bridge 데이터
+[] Validator Node API 명세
+    - [] DAML 상호 작용 (DAML JSON API연계)
+    - [] Bridge Node 상호 작용
+[] Bridge 데이터 제공 방안
+[] 데이터 유효성 검증 방안
+    - [] ContractID가 포함된 데이터에 검증이 됐는지 여부 판단을 위한 verf 필드 추가
+    - [] 라운드 마다 선출된 노드가 (약 5%내외) 데이터 검증을 진행함
+        - [] 마스터 노드와 DAML노드에 ContractID를 조회하여 Hash 데이터 동일성 확인 (모든 contract데이터를 직렬화하여 hash값 추출 구현 필요함)
+        - [] 동일성이 확인되면 각 노드들은 자신의 노드 키 값을 사용하여 verfy필드에 서명 및 배포
+    - [] 합의를 위한 노드 선출 방법
+        - [] 
+
+
+[CHECK]
+[2024-04-15 17:39:00] 분산 해시일때 검증 필요성은 있나? Master에서 put하기전 데이터를 일부 노드에 전파해서 검증후 put처리하는 방향으로..
