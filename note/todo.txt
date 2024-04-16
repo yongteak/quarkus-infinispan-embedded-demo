@@ -11,6 +11,8 @@
     - [] ContractID
     - [] 거래(Trade,Swap,AirDrop,Accept) 수락 데이터
     - [] Bridge 데이터
+[] Cache종류 및 유형 정의 [2024-04-16 15:24:58]
+    - 
 [] Validator Node API 명세
     - [] DAML 상호 작용 (DAML JSON API연계)
     - [] Bridge Node 상호 작용

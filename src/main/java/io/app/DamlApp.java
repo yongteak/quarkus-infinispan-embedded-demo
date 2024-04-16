@@ -137,7 +137,7 @@ public class DamlApp extends Endpoint {
             session.addMessageHandler(new MessageHandler.Whole<String>() {
                 @Override
                 public void onMessage(String message) {
-                    LOG.info("OnMessage: " + message);
+                    // LOG.info("OnMessage: " + message.length());
                 }
             });
 

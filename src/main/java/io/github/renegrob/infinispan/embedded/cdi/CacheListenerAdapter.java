@@ -1,6 +1,5 @@
 package io.github.renegrob.infinispan.embedded.cdi;
 
-import io.github.renegrob.infinispan.embedded.MyCacheEntry;
 import org.infinispan.notifications.Listener;
 import org.infinispan.notifications.cachelistener.annotation.*;
 import org.infinispan.notifications.cachelistener.event.*;
@@ -16,16 +15,16 @@ import org.infinispan.notifications.cachelistener.event.*;
  *  => sync = true시 모든 노드 동기화 보장
  */
 @Listener(clustered = true, sync = false, primaryOnly = false)
-public class CacheListenerAdapter {
+public class CacheListenerAdapter<T> {
 
-    private final CacheListenerCDIBridge bridge;
+    private final CacheListenerCDIBridge<T> bridge;
 
     /**
      * 생성자.
      * 
      * @param bridge 캐시 이벤트를 처리할 CDI 브릿지
      */
-    public CacheListenerAdapter(CacheListenerCDIBridge bridge) {
+    public CacheListenerAdapter(CacheListenerCDIBridge<T> bridge) {
         this.bridge = bridge;
     }
 
@@ -35,7 +34,7 @@ public class CacheListenerAdapter {
      * @param event 생성된 캐시 항목의 이벤트 정보
      */
     @CacheEntryCreated
-    public void entryCreated(CacheEntryCreatedEvent<String, MyCacheEntry> event) {
+    public void entryCreated(CacheEntryCreatedEvent<String, T> event) {
         bridge.entryCreated(event);
     }
 
@@ -45,7 +44,7 @@ public class CacheListenerAdapter {
      * @param event 수정된 캐시 항목의 이벤트 정보
      */
     @CacheEntryModified
-    public void entryUpdated(CacheEntryModifiedEvent<String, MyCacheEntry> event) {
+    public void entryUpdated(CacheEntryModifiedEvent<String, T> event) {
         bridge.entryUpdated(event);
     }
 
@@ -55,8 +54,8 @@ public class CacheListenerAdapter {
      * @param event 제거된 캐시 항목의 이벤트 정보
      */
     @CacheEntryRemoved
-    public void entryUpdated(CacheEntryRemovedEvent<String, MyCacheEntry> event) {
-        bridge.entryUpdated(event);
+    public void entryRemoved(CacheEntryRemovedEvent<String, T> event) {
+        bridge.entryRemoved(event);
     }
 
     /**
@@ -65,7 +64,7 @@ public class CacheListenerAdapter {
      * @param event 만료된 캐시 항목의 이벤트 정보
      */
     @CacheEntryExpired
-    public void entryExpired(CacheEntryExpiredEvent<String, MyCacheEntry> event) {
+    public void entryExpired(CacheEntryExpiredEvent<String, T> event) {
         bridge.entryExpired(event);
     }
 
@@ -75,7 +74,7 @@ public class CacheListenerAdapter {
      * @param event 제거된 캐시 항목들의 이벤트 정보
      */
     @CacheEntriesEvicted
-    public void entriesEvicted(CacheEntriesEvictedEvent<String, MyCacheEntry> event) {
+    public void entriesEvicted(CacheEntriesEvictedEvent<String, T> event) {
         bridge.entriesEvicted(event);
     }
 

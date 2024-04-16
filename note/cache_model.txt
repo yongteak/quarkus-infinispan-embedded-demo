@@ -1,0 +1,25 @@
+DAML과 블록체인 간 상호 운영을 위한 유효성 및 상태 관리 정보를 저장하는 캐시 유형 
+
+DAML-CONTRACT-CACHE
+DAML에서 수신된 데이터를 저장.
+Master 노드가 DAML JSON-RPC의 웹소켓을 통해 데이터를 수신하고, 이후 Validator 노드에 의해 다음 컬럼이 채워짐: verified, verified_at, sign, node_id.
+구성: distributed-cache, async
+키: contract_id, 값: daml_contract_object_data, verified (boolean), verified_at (timestamp), sign (node_sign), node_id
+
+NODE-ADDRESS-CACHE
+네트워크에 참여한 노드의 주소록을 저장.
+각 노드가 데이터를 정기적으로 갱신하며, Bridge 노드는 Master 노드의 API를 호출하여 정보를 제공.
+구성: replicated-cache, async
+키: cluster_name_node_name_node_type, 값: 공개IP, 내부IP, 리전, 최초 시작 시간, 최초 노드 접속 시간, 노드 연결 시간, 재시작 횟수, 마지막 업데이트 시간, 건강 상태, READ_BYTE, WRITE_BYTE, 연결된 노드 개수
+
+ROUND-CACHE
+유효성 검증 라운드 데이터를 저장.
+라운드는 익일 특정 시간마다 Master 또는 미들웨어에서 집계하여 저장 및 관리됨.
+구성: replicated-cache, async
+키: round_num_YYYYMMDD, 값: node_id
+
+BRIDGE-CONTRACT-CACHE
+DAML과 블록체인 간의 상태 및 응답 정보를 관리.
+Master 노드에서 관리됨.
+구성: distributed-cache, async
+키: brid_contract_id, 값: chain_id, started_at, created_at, updated_at, status, history (status, message, phase)
