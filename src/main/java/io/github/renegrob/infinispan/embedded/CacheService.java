@@ -2,11 +2,14 @@ package io.github.renegrob.infinispan.embedded;
 
 import io.github.renegrob.infinispan.embedded.cdi.CacheListenerAdapter;
 import io.github.renegrob.infinispan.embedded.cdi.CacheListenerCDIBridge;
+import io.model.cache.NodeEntry;
 import io.quarkus.runtime.ShutdownEvent;
 import io.serializable.SerializableToJson;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
+import lombok.extern.slf4j.Slf4j;
+
 import org.infinispan.Cache;
 import org.infinispan.configuration.global.GlobalConfiguration;
 import org.infinispan.manager.CacheManagerInfo;
@@ -17,6 +20,7 @@ import java.util.List;
 import java.util.Set;
 
 @ApplicationScoped
+@Slf4j
 public class CacheService {
 
     private final EmbeddedCacheManager emc;
@@ -25,11 +29,12 @@ public class CacheService {
 
     @Inject
     CacheService(EmbeddedCacheManager emc, CacheListenerCDIBridge eventBridge) {
+        emc.getCacheManagerInfo().getCacheNames().forEach(System.out::println);
         this.emc = emc;
         this.cache = emc.getCache();
 
         cacheListeners.add(new CacheListener());
-        cacheListeners.add(new CacheListenerAdapter(eventBridge));
+        cacheListeners.add(new CacheListenerAdapter<>(eventBridge));
         cacheListeners.forEach(this.cache::addListener);
     }
 
@@ -39,9 +44,64 @@ public class CacheService {
             return true;
         });
     }
-    
+
     public void start() {
         emc.start();
+        onBoot();
+    }
+
+    void onBoot() {
+        Cache<String, String> cache = emc.getCache("NODE-ADDRESS-CACHE");
+        long ts = System.currentTimeMillis();
+        NodeEntry value = NodeEntry.builder()
+                .connectedNodeCount(0)
+                .restartCount(0)
+                .nodeType("validator")
+                .publicIp("127.0.0.1")
+                .internalIp("127.0.0.1")
+                .region("us-east-1")
+                .status("running")
+                .recvByte(0)
+                .sendByte(0)
+                .publicKey("publicKey")
+                .startedAt(ts)
+                .createdAt(ts)
+                .updatedAt(ts)
+                .build();
+        String key = "node1";
+        // String result = cache.get(name);
+
+        // System.out.println("result = " + result);
+
+        String existingValue = cache.get(key);
+
+        log.info("existingValue = {}", existingValue);
+
+        if (existingValue != null) {
+            NodeEntry nodeEntry = NodeEntry.fromJson(existingValue);
+            System.out.println("nodeEntry = " + nodeEntry);
+        }
+        // value.setRestartCount(0);
+        cache.put(key, value.toJson());
+
+        String newValue = cache.get(key);
+
+        System.out.println("old = " + existingValue);
+        System.out.println("new = " + newValue);
+
+        // 비동기로 데이터 저장
+        // CompletionStage<String> putFuture = cache.putAsync(key, value);
+
+        // // 저장이 완료되면 실행
+        // putFuture.thenAccept(previousValue -> {
+        // System.out.println("old 값: " + previousValue);
+        // // 저장 완료 후 데이터 조회
+        // String newValue = cache.get(key);
+        // System.out.println("new 값: " + newValue);
+        // }).exceptionally(ex -> {
+        // System.err.println("데이터 저장 중 오류 발생: " + ex.getMessage());
+        // return null;
+        // });
     }
 
     public CacheManagerInfo getCacheManagerInfo() {

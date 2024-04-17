@@ -1,4 +1,4 @@
-package io.service;
+package io.app;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -26,9 +26,9 @@ import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
 
 @ApplicationScoped
-public class BlockchainService {
+public class OnchainApp {
 
-    static final Logger LOG = LoggerFactory.getLogger(BlockchainService.class);
+    static final Logger LOG = LoggerFactory.getLogger(OnchainApp.class);
     @Inject
     @ConfigProperty(name = "blockchain.rpc-url", defaultValue = "https://go.getblock.io/82cb819aa8b14b9abd1d0c76e0ab1c68")
     String rpcUrl;

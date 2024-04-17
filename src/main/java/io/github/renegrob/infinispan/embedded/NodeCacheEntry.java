@@ -6,13 +6,13 @@ import org.infinispan.protostream.annotations.ProtoField;
 import io.quarkus.runtime.annotations.RegisterForReflection;
 
 @RegisterForReflection
-public class MyCacheEntry {
+public class NodeCacheEntry {
 
     private final String key;
     private final String value;
 
     @ProtoFactory
-    public MyCacheEntry(String key, String value) {
+    public NodeCacheEntry(String key, String value) {
         this.key = key;
         this.value = value;
     }
@@ -29,7 +29,7 @@ public class MyCacheEntry {
 
     @Override
     public String toString() {
-        return "MyCacheEntry{" +
+        return "NodeCacheEntry{" +
                 "key=" + key +
                 ", value='" + value + '\'' +
                 '}';
