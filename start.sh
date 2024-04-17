@@ -35,9 +35,9 @@ ORACLIZER_HTTP_PORT=$((8080 + NODE_PREFIX))
 ORACLIZER_API_PORT=$((8090 + NODE_PREFIX))
 INFINISPAN_CLUSTER_NAME=cluster1
 INFINISPAN_NODE_NAME="node$NODE_PREFIX"
-INFINISPAN_STORE_PERSISTENCE_PATH="oraclizer/node$NODE_PREFIX/store/persistence/data"
-INFINISPAN_STORE_PERSISTENT_PATH="oraclizer/node$NODE_PREFIX/store/persistent/data"
-INFINISPAN_STORE_TEMPORARY_PATH="oraclizer/node$NODE_PREFIX/store/temporary/data"
+INFINISPAN_STORE_PERSISTENT_PATH="./oraclizer/$INFINISPAN_NODE_NAME"
+INFINISPAN_STORE_PERSISTENCE_PATH="persistence"
+INFINISPAN_STORE_TEMPORARY_PATH="temporary"
 
 # Export additional environment variables
 export ORACLIZER_HTTP_PORT
@@ -64,11 +64,11 @@ echo "INFINISPAN_BIND_ADDR 설정: $INFINISPAN_BIND_ADDR"
 echo "INFINISPAN_GOSSIP_ROUTER_HOSTS 설정: $INFINISPAN_GOSSIP_ROUTER_HOSTS"
 
 # oraclizer 폴더가 존재하는지 확인하고, 있다면 삭제합니다.
-ORA_FOLDER="oraclizer"
-if [ -d "$ORA_FOLDER" ]; then
-    echo "oraclizer 폴더를 삭제합니다."
-    rm -rf "$ORA_FOLDER"
-fi
+# ORA_FOLDER="oraclizer"
+# if [ -d "$ORA_FOLDER" ]; then
+#     echo "oraclizer 폴더를 삭제합니다."
+#     rm -rf "$ORA_FOLDER"
+# fi
 
 # ___global.lck 파일의 경로를 지정합니다.
 # LOCK_FILE="oraclizer/node$NODE_PREFIX/store/persistent/data/___global.lck"

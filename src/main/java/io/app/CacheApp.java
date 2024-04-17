@@ -58,14 +58,14 @@ public class CacheApp {
         System.setProperty("infinispan.bind_addr", System.getenv("INFINISPAN_BIND_ADDR"));
         System.setProperty("infinispan.cluster.name", System.getenv("INFINISPAN_CLUSTER_NAME"));
         System.setProperty("infinispan.node.name", System.getenv("INFINISPAN_NODE_NAME"));
-        System.setProperty("infinispan.store.persistence.path", System.getenv("INFINISPAN_STORE_PERSISTENCE_PATH"));
         System.setProperty("infinispan.store.persistent.path", System.getenv("INFINISPAN_STORE_PERSISTENT_PATH"));
         System.setProperty("infinispan.store.temporary.path", System.getenv("INFINISPAN_STORE_TEMPORARY_PATH"));
-
+        System.setProperty("infinispan.store.persistence.path", System.getenv("INFINISPAN_STORE_PERSISTENCE_PATH"));
 
         System.out.println("#infinispan.store.persistence.path: " + System.getenv("INFINISPAN_STORE_PERSISTENCE_PATH"));
         System.out.println("#infinispan.store.persistent.path: " + System.getenv("INFINISPAN_STORE_PERSISTENT_PATH"));
         System.out.println("#infinispan.store.temporary.path: " + System.getenv("INFINISPAN_STORE_TEMPORARY_PATH"));
+
         System.out.println("#infinispan.initial.hosts: " + System.getenv("INFINISPAN_INITIAL_HOSTS"));
         System.out.println("#infinispan.gossip.router.hosts: " + System.getenv("INFINISPAN_GOSSIP_ROUTER_HOSTS"));
         System.out.println("#infinispan.bind_addr: " + System.getenv("INFINISPAN_BIND_ADDR"));
@@ -89,80 +89,91 @@ public class CacheApp {
             // System.out.println(">>> infinispan.initial.hosts: " + "localhost[7800]");
         } else {
             System.setProperty("infinispan.initial.hosts", infinispanInitialHosts);
-            // System.out.println(">>>? infinispan.initial.hosts: exist!! > " + infinispanInitialHosts);
+            // System.out.println(">>>? infinispan.initial.hosts: exist!! > " +
+            // infinispanInitialHosts);
         }
 
         File tempFile = new File(TEMP_STATE_FILE);
         // 재시작 로직
-        if (tempFile.exists()) {
-            System.out.println("This is restart..");
+        // if (tempFile.exists()) {
+        //     System.out.println("This is restart..");
 
             String oraclizerFolderPath = "./oraclizer/" + System.getenv("INFINISPAN_NODE_NAME");
             File oraclizerFolder = new File(oraclizerFolderPath);
-            
+
             if (oraclizerFolder.exists() && oraclizerFolder.isDirectory()) {
-                try {
-                    Files.walk(oraclizerFolder.toPath())
-                        .sorted(Comparator.reverseOrder())
-                        .map(Path::toFile)
-                        .forEach(File::delete);
-                    LOG.info("폴더 및 하위 파일이 성공적으로 삭제되었습니다: " + oraclizerFolderPath);
-                } catch (IOException e) {
-                    LOG.error("폴더 및 하위 파일 삭제 중 오류 발생: " + oraclizerFolderPath, e);
+                File[] files = oraclizerFolder.listFiles();
+                if (files != null) {
+                    for (File file : files) {
+                        if (file.getName().startsWith("___global")) {
+                            file.delete();
+                            System.out.println("파일 삭제됨: " + file.getName());
+                        }
+                    }
                 }
-            } else {
-                LOG.warn("폴더가 존재하지 않습니다: " + oraclizerFolderPath);
+
+                // try {
+                // Files.walk(oraclizerFolder.toPath())
+                // .sorted(Comparator.reverseOrder())
+                // .map(Path::toFile)
+                // .forEach(File::delete);
+                // LOG.info("폴더 및 하위 파일이 성공적으로 삭제되었습니다: " + oraclizerFolderPath);
+                // } catch (IOException e) {
+                // LOG.error("폴더 및 하위 파일 삭제 중 오류 발생: " + oraclizerFolderPath, e);
+                // }
+                // } else {
+                // LOG.warn("폴더가 존재하지 않습니다: " + oraclizerFolderPath);
             }
 
-        } else {
-            // 처음 시작 로직
-            System.out.println("This is the first start.");
-            try {
-                tempFile.createNewFile();
-                tempFile.deleteOnExit(); // 애플리케이션 종료 시 파일 삭제
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+        // } else {
+        //     // 처음 시작 로직
+        //     System.out.println("This is the first start.");
+        //     try {
+        //         tempFile.createNewFile();
+        //         tempFile.deleteOnExit(); // 애플리케이션 종료 시 파일 삭제
+        //     } catch (IOException e) {
+        //         e.printStackTrace();
+        //     }
 
-        }
+        // }
 
-        LOG.info("[Start CsacheService]");
+        LOG.info("[Start CacheService]");
         cacheService.start();
 
         // [2024-04-15 18:07:42] SQLite Driver 테스트 완료
         // LOG.info("Application started. Initializing database and tables...");
         // String url = "jdbc:sqlite:./database.db";
         // try (Connection conn = DriverManager.getConnection(url)) {
-        //     if (conn != null) {
-        //         LOG.info("Connected to the SQLite database successfully.");
+        // if (conn != null) {
+        // LOG.info("Connected to the SQLite database successfully.");
 
-        //         try (Statement stmt = conn.createStatement()) {
-        //             // tbl_bucket 테이블 생성 쿼리
-        //             String sql = "CREATE TABLE IF NOT EXISTS tbl_bucket (" +
-        //                     "key TEXT PRIMARY KEY," +
-        //                     "name TEXT NOT NULL," +
-        //                     "value TEXT," +
-        //                     "created TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
-        //                     "note TEXT)";
-        //             stmt.execute(sql);
-        //             LOG.info("Table tbl_bucket created or already exists.");
+        // try (Statement stmt = conn.createStatement()) {
+        // // tbl_bucket 테이블 생성 쿼리
+        // String sql = "CREATE TABLE IF NOT EXISTS tbl_bucket (" +
+        // "key TEXT PRIMARY KEY," +
+        // "name TEXT NOT NULL," +
+        // "value TEXT," +
+        // "created TIMESTAMP DEFAULT CURRENT_TIMESTAMP," +
+        // "note TEXT)";
+        // stmt.execute(sql);
+        // LOG.info("Table tbl_bucket created or already exists.");
 
-        //             // 여기에 연결 테스트 로직을 추가할 수 있습니다.
-        //             // 예를 들어, 단순한 SELECT 쿼리를 실행할 수 있습니다.
-        //             LOG.info("Running a connection test...");
-        //             ResultSet rs = stmt.executeQuery("SELECT 1");
-        //             if (rs.next()) {
-        //                 LOG.info("Connection test successful.");
-        //             } else {
-        //                 LOG.error("Connection test failed.");
-        //             }
-        //         }
-        //     } else {
-        //         LOG.error("Failed to make connection to SQLite database.");
-        //     }
+        // // 여기에 연결 테스트 로직을 추가할 수 있습니다.
+        // // 예를 들어, 단순한 SELECT 쿼리를 실행할 수 있습니다.
+        // LOG.info("Running a connection test...");
+        // ResultSet rs = stmt.executeQuery("SELECT 1");
+        // if (rs.next()) {
+        // LOG.info("Connection test successful.");
+        // } else {
+        // LOG.error("Connection test failed.");
+        // }
+        // }
+        // } else {
+        // LOG.error("Failed to make connection to SQLite database.");
+        // }
         // } catch (Exception e) {
-        //     // e.printStackTrace();
-        //     LOG.error("Database initialization failed", e);
+        // // e.printStackTrace();
+        // LOG.error("Database initialization failed", e);
         // }
     }
 }

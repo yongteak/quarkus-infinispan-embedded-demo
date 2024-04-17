@@ -2,55 +2,95 @@
     <jgroups transport="org.infinispan.remoting.transport.jgroups.JGroupsTransport">
         <stack name="mping" extends="tcp">
             <TCP bind_addr="${infinispan.bind_addr}" bind_port="7800" port_range="30" />
-            <TCPPING initial_hosts="${infinispan.initial.hosts:localhost[7800]}" xmlns="urn:org:jgroups"/>
-            <TCPGOSSIP async_discovery="true" initial_hosts="${infinispan.gossip.router.hosts:localhost[12001]}" xmlns="urn:org:jgroups"
-            stack.combine="REPLACE"
-             stack.position="MPING" />
-      <!-- Removes the FD_SOCK2 protocol from the stack. -->
-      <FD_SOCK2 stack.combine="REMOVE"/>
-      <!-- Modifies the timeout value for the VERIFY_SUSPECT2 protocol. -->
-      <VERIFY_SUSPECT2 timeout="2000"/>
-      <!-- Adds SYM_ENCRYPT to the stack after VERIFY_SUSPECT2. -->
-    <!-- <MPING break_on_coord_rsp="true"
+            <TCPPING initial_hosts="${infinispan.initial.hosts:localhost[7800]}"
+                xmlns="urn:org:jgroups" />
+            <TCPGOSSIP async_discovery="true"
+                initial_hosts="${infinispan.gossip.router.hosts:localhost[12001]}"
+                xmlns="urn:org:jgroups"
+                stack.combine="REPLACE"
+                stack.position="MPING" />
+            <!-- Removes the FD_SOCK2 protocol from the stack. -->
+            <FD_SOCK2 stack.combine="REMOVE" />
+            <!-- Modifies the timeout value for the VERIFY_SUSPECT2 protocol. -->
+            <VERIFY_SUSPECT2 timeout="2000" />
+            <!-- Adds SYM_ENCRYPT to the stack after VERIFY_SUSPECT2. -->
+            <!-- <MPING break_on_coord_rsp="true"
         num_discovery_runs="3"
         ip_ttl="${jgroups.udp.ip_ttl:2}"
         xmlns="urn:org:jgroups"/> -->
         </stack>
     </jgroups>
-    <cache-container default-cache="defaultCache">
-    
+    <cache-container default-cache="SYSTEM-CACHE">
+
         <transport cluster="${infinispan.cluster.name:local}"
-                   stack="mping"
-                   node-name="${infinispan.node.name:}">
+            stack="mping"
+            node-name="${infinispan.node.name:}">
         </transport>
 
         <global-state enabled="true">
-            <persistent-location path="${infinispan.store.persistent.path:data}"/>
-            <temporary-location path="${infinispan.store.temporary.path:data}"/>
+            <persistent-location path="${infinispan.store.persistent.path}" />
+            <temporary-location path="${infinispan.store.temporary.path}" />
             <overlay-configuration-storage />
         </global-state>
 
-        <distributed-cache-configuration name="distributedCacheTemplate"
-                                         mode="SYNC"
-                                         statistics="true"
-                                         owners="1">
-            <expiration lifespan="-1" max-idle="-1"/>                                        
+
+        <distributed-cache-configuration name="dist-template" mode="SYNC" statistics="true"
+            owners="1">
+            <expiration lifespan="-1" max-idle="-1" />
             <encoding>
-                <key media-type="text/plain"/>
-                <value media-type="application/x-protostream"/>
+                <key media-type="text/plain" />
+                <value media-type="application/x-protostream" />
             </encoding>
         </distributed-cache-configuration>
 
-        <distributed-cache name="defaultCache" configuration="distributedCacheTemplate">
-        <transaction mode="NON_XA"/>
+        <replicated-cache-configuration name="repl-template" mode="SYNC" statistics="true">
+            <expiration lifespan="-1" max-idle="-1" />
+            <encoding>
+                <key media-type="text/plain" />
+                <value media-type="application/x-protostream" />
+            </encoding>
+        </replicated-cache-configuration>
+
+        <replicated-cache name="SYSTEM-CACHE" configuration="repl-template">
+            <transaction mode="NON_XA" />
             <persistence>
-                <file-store path="${infinispan.store.persistence.path:data}"/>
+                <file-store path="${infinispan.store.persistence.path}" />
             </persistence>
-            <!--
-                timeout: 상태 전송 과정이 완료되기를 기다리는 최대 시간(밀리초 단위)입니다.
-                chunk-size: 한 번에 전송되는 데이터의 최대 크기(바이트 단위)입니다.
-            -->
-            <state-transfer timeout="60000" chunk-size="1000"/>
+            <state-transfer timeout="60000" chunk-size="1000" />
+        </replicated-cache>
+
+        <replicated-cache name="NODE-ADDRESS-CACHE" configuration="repl-template">
+            <transaction mode="NON_XA" />
+            <persistence>
+                <file-store path="${infinispan.store.persistence.path}" />
+            </persistence>
+            <state-transfer timeout="60000" chunk-size="1000" />
+        </replicated-cache>
+
+        <distributed-cache name="DAML-CONTRACT-CACHE" configuration="dist-template">
+            <transaction mode="NON_XA" />
+            <persistence>
+                <file-store path="${infinispan.store.persistence.path}" />
+            </persistence>
+            <state-transfer timeout="60000" chunk-size="1000" />
         </distributed-cache>
+
+        <distributed-cache name="ROUND-CACHE" configuration="dist-template">
+            <transaction mode="NON_XA" />
+            <persistence>
+                <file-store path="${infinispan.store.persistence.path}" />
+            </persistence>
+            <state-transfer timeout="60000" chunk-size="1000" />
+        </distributed-cache>
+
+        <distributed-cache name="BRIDGE-CONTRACT-CACHE" configuration="dist-template">
+            <transaction mode="NON_XA" />
+            <persistence>
+                <file-store path="${infinispan.store.persistence.path}" />
+            </persistence>
+            <state-transfer timeout="60000" chunk-size="1000" />
+        </distributed-cache>
+
+
     </cache-container>
 </infinispan>
