@@ -17,6 +17,8 @@ val infinispanVersion: String by project
 val protostreamVersion: String by project;
 
 dependencies {
+    implementation("io.quarkus:quarkus-vertx")
+    implementation("io.quarkus:quarkus-smallrye-jwt")
     implementation("com.google.code.gson:gson:2.8.6")
     implementation("org.apache.camel.quarkus:camel-quarkus-bean")
     implementation("org.apache.camel.quarkus:camel-quarkus-json-validator")

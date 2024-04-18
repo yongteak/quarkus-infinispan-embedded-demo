@@ -1,24 +1,34 @@
 package io.app;
 
+import io.beans.DamlLedger;
+import io.github.renegrob.infinispan.embedded.CacheService;
+import io.model.cache.DamlContractEntry;
+import io.model.daml.DAMLFetchResponse;
+import io.model.daml.template.Fetch;
+
 import java.io.IOException;
+import java.security.MessageDigest;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.HashMap;
+import java.util.HexFormat;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.Executors;
 import java.util.concurrent.ScheduledExecutorService;
 import java.util.concurrent.TimeUnit;
 
+import org.apache.camel.CamelContext;
 import org.eclipse.microprofile.config.inject.ConfigProperty;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 
+import com.fasterxml.jackson.databind.JsonNode;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.google.gson.Gson;
 
-import io.quarkus.runtime.StartupEvent;
+import io.quarkus.vertx.ConsumeEvent;
+import jakarta.annotation.PreDestroy;
 import jakarta.enterprise.context.ApplicationScoped;
-import jakarta.enterprise.event.Observes;
+import jakarta.inject.Inject;
 import jakarta.websocket.ClientEndpoint;
 import jakarta.websocket.ClientEndpointConfig;
 import jakarta.websocket.CloseReason;
@@ -31,29 +41,62 @@ import jakarta.websocket.OnError;
 import jakarta.websocket.OnOpen;
 import jakarta.websocket.Session;
 import jakarta.websocket.WebSocketContainer;
+import lombok.extern.slf4j.Slf4j;
 
 @ClientEndpoint
 @ApplicationScoped
-public class DamlApp extends Endpoint {
+@Slf4j
+public class DamlApp extends Endpoint/* implements ICacheServiceEventListener */ {
+
+    @Inject
+    private CamelContext camelContext;
+
+    @Inject
+    private DamlLedger ledger;
+
+    @Inject
+    private CacheService cacheService;
 
     private Session session;
     private final ScheduledExecutorService scheduler = Executors.newScheduledThreadPool(1);
     private WebSocketContainer container;
     private ClientEndpointConfig config;
 
-    static final Logger LOG = LoggerFactory.getLogger(DamlApp.class);
     @ConfigProperty(name = "daml.ws.uri")
     private String URI;
 
     @ConfigProperty(name = "daml.ws.protocol")
     private String PROTOCOL;
 
+    // PostConstruct는 최초 1회만 실행됨, reload인경우 다시 실행안됨
+    // @ConsumeEvent
+    // public void init() {
+    // log.info("1. ADD Listener");
+    // cacheService.addEventListener(this);
+    // }
 
-    public void onStart(@Observes StartupEvent ev) {
-        LOG.info("DamlInitializer 시작됨.");
+    // @Override
+    // public void onCacheServiceNext() {
+    // // CacheService의 next() 호출 시 초기화 로직
+    // initialize();
+    // }
+
+    @ConsumeEvent(value = "daml-client-initialize")
+    public void initialize(String event) {
+        log.info("2. START DamlApp initialize");
+        // DAMLFetchResponse result = ledger.fetchContractById(camelContext.createFluentProducerTemplate(), 
+        //     Fetch.builder()
+        //     .contractId("00b0fb35285429b3c47c2db959c4d223bfc7e0d13b3138ac2933e36a9bc0bb0c8cca0112200bf16b5e3a9cd8eb82c8995db5677300c762b14102fe59f439654b7ebf8c3d99")
+        //     .templateId("Account:AssetHoldingAccount")
+        //     .build());
+        // log.info(result.toString());
         createConfig();
         scheduler.scheduleAtFixedRate(this::checkConnection, 0, 3, TimeUnit.SECONDS);
     }
+
+    // public void onStart(@Observes StartupEvent ev) {
+    // log.info("1. CREATE DamlApp Instance");
+    // }
 
     // WebSocket 연결 상태를 확인하는 메소드
     public boolean isConnectionOpen() {
@@ -62,24 +105,53 @@ public class DamlApp extends Endpoint {
 
     // WebSocket 설정을 생성하고 연결을 초기화하는 메소드
     private void createConfig() {
-        // LOG.info("WebSocket 설정을 생성합니다.");
+        // log.info("WebSocket 설정을 생성합니다.");
         try {
             closeCurrentSession();
             initializeWebSocketContainer();
             connectToServer();
         } catch (Exception e) {
-            LOG.error("WebSocket 설정 생성 중 오류 발생", e);
+            log.error("WebSocket 설정 생성 중 오류 발생", e);
+        }
+    }
+
+    @PreDestroy
+    public void onDestroy() {
+        try {
+            closeCurrentSession();
+            shutdownScheduler();
+        } catch (IOException e) {
+            log.error("WebSocket 세션 종료 중 오류 발생", e);
         }
     }
 
     // 기존 세션을 닫고 필드를 초기화하는 메소드
     private void closeCurrentSession() throws IOException {
         if (this.session != null && this.session.isOpen()) {
-            this.session.close();
-            LOG.info("기존 WebSocket 세션을 닫습니다.");
+            this.session.close(new CloseReason(CloseReason.CloseCodes.GOING_AWAY, "서버 종료"));
+            log.info("기존 WebSocket 세션을 닫습니다.");
         }
         this.session = null;
         this.container = null;
+    }
+
+    private void shutdownScheduler() {
+        if (scheduler != null) {
+            scheduler.shutdown();
+            try {
+                // 스케줄러가 종료될 때까지 대기
+                if (!scheduler.awaitTermination(2, TimeUnit.SECONDS)) {
+                    // 스케줄러가 정상적으로 종료되지 않았다면 강제 종료
+                    scheduler.shutdownNow();
+                }
+            } catch (InterruptedException e) {
+                // 현재 스레드가 대기 중 인터럽트 되었다면 스케줄러를 즉시 종료
+                scheduler.shutdownNow();
+                // 인터럽트 상태를 복원
+                Thread.currentThread().interrupt();
+            }
+            log.info("스케줄러가 종료되었습니다.");
+        }
     }
 
     // WebSocket 컨테이너를 초기화하는 메소드
@@ -97,22 +169,21 @@ public class DamlApp extends Endpoint {
     // 서버에 연결하는 메소드
     private void connectToServer() throws Exception {
         this.container.connectToServer(DamlApp.class, config, java.net.URI.create(URI));
-        // LOG.info("서버에 연결을 시도합니다.");
     }
 
     // 연결 상태를 주기적으로 확인하는 메소드
     private void checkConnection() {
         if (isConnectionOpen()) {
-            // LOG.info("WebSocket 연결이 유지되고 있습니다.");
+            // log.info("WebSocket 연결이 유지되고 있습니다.");
         } else {
-            // LOG.error("WebSocket 연결이 끊어졌습니다.");
+            log.error("WebSocket 연결이 끊어졌습니다.");
         }
     }
 
     @OnOpen
     public void onOpen(Session session, EndpointConfig config) {
         this.session = session;
-        LOG.info("WebSocket 클라이언트가 연결됐습니다.");
+        log.info("WebSocket 클라이언트가 연결됐습니다.");
         sendMessageToServer();
     }
 
@@ -137,30 +208,57 @@ public class DamlApp extends Endpoint {
             session.addMessageHandler(new MessageHandler.Whole<String>() {
                 @Override
                 public void onMessage(String message) {
-                    // LOG.info("OnMessage: " + message.length());
+                    // // log.info(message);
+                    // try {
+                    //     ObjectMapper mapper = new ObjectMapper();
+                    //     JsonNode root = mapper.readTree(message);
+                    //     JsonNode events = root.path("events");
+
+                    //     for (JsonNode eventNode : events) {
+                    //         String eventType = eventNode.fieldNames().next(); // 첫 번째 키를 이벤트 유형으로 사용
+                    //         JsonNode eventData = eventNode.path(eventType);
+
+                    //         // log.info(mapper.writeValueAsString(eventData));
+                    //         DamlContractEntry entry = DamlContractEntry.builder()
+                    //                 .event(eventType)
+                    //                 .contract_id(eventData.path("contractId").asText())
+                    //                 .contract(eventData)
+                    //                 .hash(calculateMD5(mapper.writeValueAsString(eventData)))
+                    //                 .build();
+                    //         log.info("entry: " + entry.toJson());
+                    //     }
+                    // } catch (Exception e) {
+                    //     log.error("메시지 처리 중 오류 발생", e);
+                    // }
                 }
             });
 
             session.getAsyncRemote().sendText(jsonMessage, result -> {
                 if (result.isOK()) {
-                    // LOG.info("메시지 전송 성공: " + jsonMessage);
+                    // log.info("메시지 전송 성공: " + jsonMessage);
                 } else {
-                    LOG.error("메시지 전송 실패", result.getException());
+                    log.error("메시지 전송 실패", result.getException());
                 }
             });
         } catch (Exception e) {
-            LOG.error("메시지 전송 중 예외 발생", e);
+            log.error("메시지 전송 중 예외 발생", e);
         }
+    }
+
+    private String calculateMD5(String input) throws Exception {
+        MessageDigest md = MessageDigest.getInstance("MD5");
+        byte[] messageDigest = md.digest(input.getBytes());
+        return HexFormat.of().formatHex(messageDigest);
     }
 
     @OnError
     public void onError(Session session, Throwable throwable) {
-        LOG.error("WebSocket 연결 중 오류 발생", throwable);
+        log.error("WebSocket 연결 중 오류 발생", throwable);
     }
 
     @OnClose
     public void onClose(Session session, CloseReason closeReason) {
-        LOG.info("WebSocket 연결이 끊어졌습니다. 이유: " + closeReason.getReasonPhrase());
+        log.info("WebSocket 연결이 끊어졌습니다. 이유: " + closeReason.getReasonPhrase());
         tryReconnect();
     }
 
@@ -169,10 +267,10 @@ public class DamlApp extends Endpoint {
         scheduler.schedule(() -> {
             if (this.session == null || !this.session.isOpen()) {
                 try {
-                    LOG.info("WebSocket 재연결을 시도합니다.");
+                    log.info("WebSocket 재연결을 시도합니다.");
                     createConfig();
                 } catch (Exception e) {
-                    LOG.error("WebSocket 재연결 시도 중 오류 발생", e);
+                    log.error("WebSocket 재연결 시도 중 오류 발생", e);
                     tryReconnect();
                 }
             }

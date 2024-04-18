@@ -5,6 +5,7 @@ import io.github.renegrob.infinispan.embedded.cdi.CacheListenerCDIBridge;
 import io.model.cache.NodeEntry;
 import io.quarkus.runtime.ShutdownEvent;
 import io.serializable.SerializableToJson;
+import io.vertx.mutiny.core.eventbus.EventBus;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
@@ -23,13 +24,16 @@ import java.util.Set;
 @Slf4j
 public class CacheService {
 
+    @Inject
+    EventBus bus; 
+    
     private final EmbeddedCacheManager emc;
     private final Cache<String, String> cache;
     private final List<Object> cacheListeners = new ArrayList<>();
 
     @Inject
     CacheService(EmbeddedCacheManager emc, CacheListenerCDIBridge eventBridge) {
-        emc.getCacheManagerInfo().getCacheNames().forEach(System.out::println);
+        // emc.getCacheManagerInfo().getCacheNames().forEach(System.out::println);
         this.emc = emc;
         this.cache = emc.getCache();
 
@@ -50,59 +54,66 @@ public class CacheService {
         onBoot();
     }
 
+    Boolean checkNodeMember() {
+        // TODO
+        // [] Member가 특정 숫자 이상인경우 연결이 정상적으로 되었다고 판단 [2024-04-18 15:22:34]
+        return emc.getMembers().size() > 0;
+    }
+
     void onBoot() {
         Cache<String, String> cache = emc.getCache("NODE-ADDRESS-CACHE");
+
+        // emc.getMembers()
         long ts = System.currentTimeMillis();
-        NodeEntry value = NodeEntry.builder()
-                .connectedNodeCount(0)
-                .restartCount(0)
-                .nodeType("validator")
-                .publicIp("127.0.0.1")
-                .internalIp("127.0.0.1")
-                .region("us-east-1")
-                .status("running")
-                .recvByte(0)
-                .sendByte(0)
-                .publicKey("publicKey")
-                .startedAt(ts)
-                .createdAt(ts)
-                .updatedAt(ts)
-                .build();
-        String key = "node1";
+        String clusterName = emc.getCacheManagerInfo().getClusterName();
+        String nodeName = emc.getCacheManagerInfo().getNodeName();
+        String key = clusterName + "-" + nodeName;
         // String result = cache.get(name);
 
         // System.out.println("result = " + result);
 
-        String existingValue = cache.get(key);
-
-        log.info("existingValue = {}", existingValue);
-
-        if (existingValue != null) {
-            NodeEntry nodeEntry = NodeEntry.fromJson(existingValue);
-            System.out.println("nodeEntry = " + nodeEntry);
+        String info = cache.get(key);
+        if (info != null) {
+            NodeEntry nodeEntry = NodeEntry.fromJson(info);
+            nodeEntry.setRestartCount(nodeEntry.getRestartCount() + 1);
+            nodeEntry.setUpdatedAt(ts);
+            nodeEntry.setStartedAt(ts);
+            cache.put(key, nodeEntry.toJson());
+            log.info("update NodeEntry = {}", nodeEntry);
+        } else {
+            NodeEntry nodeEntry = NodeEntry.builder()
+                    .connectedNodeCount(0)
+                    .restartCount(0)
+                    .nodeType("validator")
+                    .publicIp("127.0.0.1")
+                    .internalIp("127.0.0.1")
+                    .region("us-east-1")
+                    .status("running")
+                    .recvByte(0)
+                    .sendByte(0)
+                    .publicKey("publicKey")
+                    .startedAt(ts)
+                    .createdAt(ts)
+                    .updatedAt(ts)
+                    .build();
+            cache.put(key, nodeEntry.toJson());
+            log.info("create NodeEntry = {}", nodeEntry);
         }
-        // value.setRestartCount(0);
-        cache.put(key, value.toJson());
-
-        String newValue = cache.get(key);
-
-        System.out.println("old = " + existingValue);
-        System.out.println("new = " + newValue);
-
-        // 비동기로 데이터 저장
-        // CompletionStage<String> putFuture = cache.putAsync(key, value);
-
-        // // 저장이 완료되면 실행
-        // putFuture.thenAccept(previousValue -> {
-        // System.out.println("old 값: " + previousValue);
-        // // 저장 완료 후 데이터 조회
-        // String newValue = cache.get(key);
-        // System.out.println("new 값: " + newValue);
-        // }).exceptionally(ex -> {
-        // System.err.println("데이터 저장 중 오류 발생: " + ex.getMessage());
-        // return null;
-        // });
+        next();
     }
+
+    // 네트워크/클러스터 연결 및 캐시 상태가 모두 확인 되었을 경우 
+    void next() {
+        bus.publish("daml-client-initialize", "initialize");
+        // notifyListeners();
+    }
+
+    // private void notifyListeners() {
+    //     log.info("002 CacheService : notifyListeners, size={}",listeners.size());
+    //     for (ICacheServiceEventListener listener : listeners) {
+    //         listener.onCacheServiceNext();
+    //     }
+    // }
 
     public CacheManagerInfo getCacheManagerInfo() {
         return emc.getCacheManagerInfo();

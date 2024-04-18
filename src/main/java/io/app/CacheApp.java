@@ -5,33 +5,29 @@ import io.quarkus.runtime.StartupEvent;
 import jakarta.enterprise.context.ApplicationScoped;
 import jakarta.enterprise.event.Observes;
 import jakarta.inject.Inject;
+import lombok.extern.slf4j.Slf4j;
 
 import java.io.File;
-import java.io.IOException;
 import java.io.InputStream;
 import java.net.Inet4Address;
 import java.net.InetAddress;
 import java.net.NetworkInterface;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.util.Comparator;
 import java.util.Enumeration;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
-
 @ApplicationScoped
+@Slf4j
 public class CacheApp {
 
     @Inject
     CacheService cacheService;
 
-    static final Logger LOG = LoggerFactory.getLogger(CacheApp.class);
-
     // dev환경에서 재시작 체크 임시파일
     private static final String TEMP_STATE_FILE = System.getProperty("java.io.tmpdir") + "/appstate.tmp";
 
     void onStart(@Observes StartupEvent ev) {
+
+        // String token = TokenUtils.generateDamlTokenString("admin");
+        // System.out.println("##token: " + token);
         // INFINISPAN_BIND_ADDR값이 없는경우 내 IP 주소 검색후 적용
         // [2024-03-26 17:20:58]
         String infinispanBindAddr = System.getenv("INFINISPAN_BIND_ADDR");
@@ -48,7 +44,7 @@ public class CacheApp {
                     }
                 }
             } catch (Exception e) {
-                LOG.error("Failed to detect local IP address", e);
+                log.error("Failed to detect local IP address", e);
                 throw new RuntimeException("Failed to detect local IP address", e);
             }
         }
@@ -100,7 +96,9 @@ public class CacheApp {
 
             String oraclizerFolderPath = "./oraclizer/" + System.getenv("INFINISPAN_NODE_NAME");
             File oraclizerFolder = new File(oraclizerFolderPath);
-
+            log.info("1. oraclizerFolderPath : " + oraclizerFolderPath);
+            log.info("2. oraclizerFolder.exists() : " + oraclizerFolder.exists());
+            log.info("3. oraclizerFolder.isDirectory() : " + oraclizerFolder.isDirectory());
             if (oraclizerFolder.exists() && oraclizerFolder.isDirectory()) {
                 File[] files = oraclizerFolder.listFiles();
                 if (files != null) {
@@ -137,7 +135,7 @@ public class CacheApp {
 
         // }
 
-        LOG.info("[Start CacheService]");
+        log.info("[Start CacheService]");
         cacheService.start();
 
         // [2024-04-15 18:07:42] SQLite Driver 테스트 완료
