@@ -60,6 +60,10 @@ public class CacheService {
         return emc.getMembers().size() > 0;
     }
 
+    public Cache<String, String> getCache(String cacheName) {
+        return emc.getCache(cacheName);
+    }
+
     void onBoot() {
         Cache<String, String> cache = emc.getCache("NODE-ADDRESS-CACHE");
 

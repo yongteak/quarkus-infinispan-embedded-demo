@@ -81,15 +81,9 @@ public class DamlApp extends Endpoint/* implements ICacheServiceEventListener */
     // initialize();
     // }
 
-    @ConsumeEvent(value = "daml-client-initialize")
-    public void initialize(String event) {
+    @ConsumeEvent(value = "daml-client-initialize", blocking = true)
+    public void initialize(String event) throws Exception {
         log.info("2. START DamlApp initialize");
-        // DAMLFetchResponse result = ledger.fetchContractById(camelContext.createFluentProducerTemplate(), 
-        //     Fetch.builder()
-        //     .contractId("00b0fb35285429b3c47c2db959c4d223bfc7e0d13b3138ac2933e36a9bc0bb0c8cca0112200bf16b5e3a9cd8eb82c8995db5677300c762b14102fe59f439654b7ebf8c3d99")
-        //     .templateId("Account:AssetHoldingAccount")
-        //     .build());
-        // log.info(result.toString());
         createConfig();
         scheduler.scheduleAtFixedRate(this::checkConnection, 0, 3, TimeUnit.SECONDS);
     }
@@ -209,27 +203,45 @@ public class DamlApp extends Endpoint/* implements ICacheServiceEventListener */
                 @Override
                 public void onMessage(String message) {
                     // // log.info(message);
-                    // try {
-                    //     ObjectMapper mapper = new ObjectMapper();
-                    //     JsonNode root = mapper.readTree(message);
-                    //     JsonNode events = root.path("events");
+                    try {
+                        ObjectMapper mapper = new ObjectMapper();
+                        JsonNode root = mapper.readTree(message);
+                        JsonNode events = root.path("events");
 
-                    //     for (JsonNode eventNode : events) {
-                    //         String eventType = eventNode.fieldNames().next(); // 첫 번째 키를 이벤트 유형으로 사용
-                    //         JsonNode eventData = eventNode.path(eventType);
+                        for (JsonNode eventNode : events) {
+                            String eventType = eventNode.fieldNames().next(); // 첫 번째 키를 이벤트 유형으로 사용
+                            JsonNode eventData = eventNode.path(eventType);
 
-                    //         // log.info(mapper.writeValueAsString(eventData));
-                    //         DamlContractEntry entry = DamlContractEntry.builder()
-                    //                 .event(eventType)
-                    //                 .contract_id(eventData.path("contractId").asText())
-                    //                 .contract(eventData)
-                    //                 .hash(calculateMD5(mapper.writeValueAsString(eventData)))
-                    //                 .build();
-                    //         log.info("entry: " + entry.toJson());
-                    //     }
-                    // } catch (Exception e) {
-                    //     log.error("메시지 처리 중 오류 발생", e);
-                    // }
+                            // log.info(mapper.writeValueAsString(eventData));
+                            DamlContractEntry entry = DamlContractEntry.builder()
+                                    .event(eventType)
+                                    .contract_id(eventData.path("contractId").asText())
+                                    .contract(eventData)
+                                    .hash(calculateMD5(mapper.writeValueAsString(eventData)))
+                                    .build();
+                            camelContext.createFluentProducerTemplate()
+                                .to("direct:cache-operator-daml-put")
+                                .withBody(entry)
+                                .request(); //  반환 타입 필요없을듯 [2024-04-19 12:08:05]
+                            /*
+                             * DAMLFetchResponse result;
+        try {
+            result = ledger.fetchContractById(camelContext.createFluentProducerTemplate(), 
+                Fetch.builder()
+                .contractId("004bd589fbfe020dc7df7d519aae2a5872d50b3abdf6e73b6fac4625b2698962b4ca01122028bce3496cef3c64e1e4b3078aa152c29aad11795a280fa3dbd0d1f8c89abdcb")
+                .templateId("Asset:Asset")
+                .build());
+                log.info(calculateMD5(result.getOriginalData().toString()));
+        } catch (IOException e) {
+            // TODO Auto-generated catch block
+            e.printStackTrace();
+        }
+                             */
+                            log.info("entry: " + entry.toJson());
+                        }
+                    } catch (Exception e) {
+                        log.error("메시지 처리 중 오류 발생", e);
+                    }
                 }
             });
 

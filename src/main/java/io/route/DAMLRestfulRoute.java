@@ -43,9 +43,9 @@ public class DAMLRestfulRoute extends RouteBuilder {
                                 .unmarshal().json(JsonLibrary.Jackson, DAMLQueryResponse.class);
                 from("direct:restful-daml-fetch-response").routeId("restful-daml-fetch-response")
                                 .description("DAML Fetch")
-                                .convertBodyTo(String.class)
-                                .log("# daml-fetch-result => ${body}")
-                                .unmarshal().json(JsonLibrary.Jackson, DAMLFetchResponse.class);
+                                .convertBodyTo(String.class);
+                                // .log("# daml-fetch-result => ${body}")
+                                // .unmarshal().json(JsonLibrary.Jackson, DAMLFetchResponse.class);
                 from("direct:restful-daml-exercise-response").routeId("restful-daml-exercise-response")
                                 .description("DAML Exercise")
                                 .convertBodyTo(String.class)
